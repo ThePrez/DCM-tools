@@ -1,0 +1,100 @@
+package com.github.ibmioss.dcmtools;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import com.github.ibmioss.dcmtools.CertFileProcessor.ImportOptions;
+import com.github.ibmioss.dcmtools.utils.StringUtils;
+import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+
+/**
+ * Main entry point for the application
+ *
+ * @author Jesse Gorzinski
+ */
+public class DcmImporter {
+    private static String extractValue(final String _str) {
+        final int equalsSign = _str.indexOf('=');
+        return (-1 == equalsSign) ? _str : _str.substring(1 + equalsSign);
+    }
+
+    public static void main(final String... _args) {
+        final List<String> files = new LinkedList<String>();
+        final List<String> fetchFroms = new LinkedList<String>();
+        final ImportOptions opts = new ImportOptions();
+        final boolean isImportingInstalledCerts;
+        for (final String arg : _args) {
+            if ("-y".equals(arg)) {
+                opts.isYesMode = true;
+            } else if ("-h".equals(arg) || "--help".equals(arg)) {
+                printUsageAndExit();
+            } else if (arg.startsWith("--password=")) {
+                opts.isPasswordProtected = true;
+                opts.password = extractValue(arg);
+            } else if ("--password".equals(arg)) {
+                opts.isPasswordProtected = true;
+            } else if (arg.startsWith("--target=")) {
+                final String target = extractValue(arg);
+                if ("system".equalsIgnoreCase(target) || "*system".equalsIgnoreCase(target)) {
+                    opts.dcmTarget = CertFileProcessor.SYSTEM_DCM_STORE;
+                } else {
+                    opts.dcmTarget = target;
+                }
+            } else if (arg.startsWith("--dcm-password=")) {
+                opts.dcmPassword = extractValue(arg);
+            } else if (arg.startsWith("--fetch-from=")) {
+                fetchFroms.add(extractValue(arg));
+            } else if ("--installed-certs".equals(arg)) {
+                files.add(null);
+            } else if (arg.startsWith("-")) {
+                System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown option '" + arg + "'", TerminalColor.BRIGHT_RED));
+                printUsageAndExit();
+            } else {
+                files.add(arg);
+            }
+        }
+        try {// TODO: handle multi-file better
+            for (final String fetchFrom : fetchFroms) {
+                files.add(CertFileProcessor.fetchCert(opts, fetchFrom));
+            }
+            if (files.isEmpty()) {
+                System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
+                printUsageAndExit();
+            }
+            for (final String file : files) {
+                final CertFileProcessor off = new CertFileProcessor(file);
+                off.doImport(opts);
+            }
+
+        } catch (final Exception e) {
+            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            CertFileProcessor.cleanup();
+            System.exit(-1); // TODO: allow skip on nonfatal
+        } finally {
+            CertFileProcessor.cleanup();
+        }
+
+    }
+
+    private static void printUsageAndExit() {
+        // @formatter:off
+		final String usage = "Usage: dcmimport  [options] [[filename] ..]\n"
+		                        + "\n"
+		                        + "    Valid options include:\n"
+                                + "        -y:                            Do not ask for confirmation\n"
+                                + "        --password[=password]:         Indicate that the input file is password-protected,\n"
+                                + "                                       and optionally provide a password\n"
+                                + "        --target=<system/filename>:    Specify the target keystore, or specify 'system'\n"
+                                + "                                       to indicate the *SYSTEM store (default)\n"
+                                + "        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)\n"
+                                + "        --fetch-from=<hostname>[:port] Fetch the certificate from the given hostname/port\n"
+                                + "        --installed-certs:             import all certificates that are installed into PASE\n"
+                                + "                                       environment, for instance, certificates in the\n"
+                                + "                                       ca-certificates-mozilla package\n"
+                                ;
+		// @formatter:on
+        System.err.println(usage);
+        System.exit(-1);
+    }
+
+}

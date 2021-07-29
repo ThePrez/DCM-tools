@@ -1,0 +1,11 @@
+remote_theme: carlosperate/jekyll-theme-rtd
+layout: default
+title: dcmtools
+description: DCM tools for IBM i
+hljs_style: github-gist
+repo_url: https://github.com/ThePrez/DCM-tools
+collapse_navigation: true
+include_homepage_in_sidebar: false
+binclude:
+  - quickstart/HANDS_ON.md
+  - CONTRIBUTING.md
