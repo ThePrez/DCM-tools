@@ -16,6 +16,7 @@ It can be used to import files of type:
 - JKS trust stores
 - JCEKS trust stores
 - PKCS#12 bundles
+
 It can also be used to fetch certificates from a remote host and import to DCM.
 
 # Have feedback or want to contribute?
