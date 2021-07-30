@@ -14,7 +14,7 @@ public class ConsoleUtils {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 
                 return br.readLine();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 throw new IOException(e);
             }
         } else {
@@ -22,11 +22,11 @@ public class ConsoleUtils {
         }
     }
 
-    public static String askUserForPwd(String _prompt) throws IOException {
+    public static String askUserForPwd(final String _prompt) throws IOException {
         if (null == g_console) {
             throw new IOException("Can't securely ask for password property).");
         } else {
-            char[] pw = g_console.readPassword(_prompt);
+            final char[] pw = g_console.readPassword(_prompt);
             if (null == pw) {
                 throw new IOException("Password not entered");
             }
@@ -35,7 +35,7 @@ public class ConsoleUtils {
     }
 
     public static String askUserOrThrow(final String _question) throws IOException {
-        String resp = askUser(_question);
+        final String resp = askUser(_question);
         if (StringUtils.isEmpty(resp)) {
             throw new IOException("No response provided");
         }
@@ -43,7 +43,7 @@ public class ConsoleUtils {
     }
 
     public static String askUserWithDefault(final String _question, final String _default) throws IOException {
-        String response = askUser(_question).trim();
+        final String response = askUser(_question).trim();
         return StringUtils.isEmpty(response) ? _default : response;
     }
 }

@@ -26,7 +26,7 @@ public class MessageLookerUpper {
 
     public MessageLookerUpper(final String _msgId) {
         final String deets = s_knownMessages.get(_msgId.toUpperCase().trim());
-        if (null !=deets) {
+        if (null != deets) {
             m_toString = String.format("%s: %s", _msgId, deets);
         } else {
             m_toString = _msgId;

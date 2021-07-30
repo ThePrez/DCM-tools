@@ -58,7 +58,7 @@ public class StringUtils {
             if (str.matches("^[\\w\\.\\-]+$")) {
                 ret.append(str);
             } else {
-                char delim = str.contains("'") ? '\"' : '\'';
+                final char delim = str.contains("'") ? '\"' : '\'';
                 ret.append("" + delim + str + delim);
             }
             ret.append(' ');
@@ -74,7 +74,7 @@ public class StringUtils {
         }
     }
 
-    public static String generateRandomString(int _len) {
+    public static String generateRandomString(final int _len) {
         String ret = "";
         while (ret.length() < _len) {
             ret += UUID.randomUUID().toString().replace("-", "");

@@ -38,7 +38,7 @@ public class DcmApiCaller implements Closeable {
     }
 
     // QykmImportKeyStore
-    public void callQykmImportKeyStore(String _dcmStore, String _dcmStorePw, String _dcmImportFile, String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQykmImportKeyStore(final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QYKMIMPK.PGM";

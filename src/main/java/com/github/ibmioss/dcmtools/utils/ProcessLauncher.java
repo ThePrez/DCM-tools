@@ -4,35 +4,37 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.AbstractMap.SimpleEntry;
 
 public class ProcessLauncher {
 
     public static class ProcessResult {
         private final List<String> m_stdout;
-        public List<String> getStdout() {
-            return m_stdout;
-        }
-        public List<String> getStderr() {
-            return m_stderr;
-        }
-        public int getExitStatus() {
-            return m_exitStatus;
-        }
         private final List<String> m_stderr;
         private final int m_exitStatus;
-        public ProcessResult(List<String> m_stdout, List<String> m_stderr, int m_exitStatus) {
+
+        public ProcessResult(final List<String> m_stdout, final List<String> m_stderr, final int m_exitStatus) {
             super();
             this.m_stdout = m_stdout;
             this.m_stderr = m_stderr;
             this.m_exitStatus = m_exitStatus;
         }
-        
+
+        public int getExitStatus() {
+            return m_exitStatus;
+        }
+
+        public List<String> getStderr() {
+            return m_stderr;
+        }
+
+        public List<String> getStdout() {
+            return m_stdout;
+        }
+
     }
-    
+
     public static ProcessResult exec(final String _cmd) throws UnsupportedEncodingException, IOException {
         final Process p = Runtime.getRuntime().exec(_cmd);
         final List<String> stdout = new LinkedList<String>();

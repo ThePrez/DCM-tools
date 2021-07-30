@@ -1,50 +1,25 @@
 package com.github.ibmioss.dcmtools;
 
 import java.beans.PropertyVetoException;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.KeyStoreHelper;
-import com.github.ibmioss.dcmtools.utils.MessageLookerUpper;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
-import com.github.ibmioss.dcmtools.utils.TempFileManager;
-import com.ibm.as400.access.AS400;
-import com.ibm.as400.access.AS400Bin4;
-import com.ibm.as400.access.AS400Message;
 import com.ibm.as400.access.AS400SecurityException;
-import com.ibm.as400.access.AS400Text;
-import com.ibm.as400.access.ErrorCodeParameter;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
-import com.ibm.as400.access.ProgramCall;
-import com.ibm.as400.access.ProgramParameter;
 
 public class CertFileProcessor {
     public static class ImportOptions {
@@ -122,13 +97,13 @@ public class CertFileProcessor {
         }
 
         // Convert the KeyStore object to a file in the format needed by the DCM API
-        final String dcmImportFile = new KeyStoreHelper(keyStore).saveToDcmApiFormatFile(TEMP_KEYSTORE_PWD);;
+        final String dcmImportFile = new KeyStoreHelper(keyStore).saveToDcmApiFormatFile(TEMP_KEYSTORE_PWD);
+        ;
 
         // .... and... call the DCM API to do the import!
-        try(DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
+        try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
             caller.callQykmImportKeyStore(dcmStore, dcmStorePw, dcmImportFile, TEMP_KEYSTORE_PWD);
         }
     }
-
 
 }

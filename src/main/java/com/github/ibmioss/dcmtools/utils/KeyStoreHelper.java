@@ -18,6 +18,21 @@ import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 
 public class KeyStoreHelper {
     private static final String PKCS_12 = "PKCS12";
+
+    public static String extractTrustFromInstalledCerts() throws IOException {
+        final File destFile = TempFileManager.createTempFile(null);
+        destFile.delete();
+        final ProcessResult cmdResults = ProcessLauncher.exec("/QOpenSys/pkgs/bin/trust extract --format=java-cacerts --purpose=server-auth -v " + destFile.getAbsolutePath());
+        if (0 != cmdResults.getExitStatus()) {
+            for (final String errLine : cmdResults.getStderr()) {
+                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
+            }
+            throw new IOException("Error extracting trusted certificates");
+        }
+        System.out.println(StringUtils.colorizeForTerminal("Successfully extracted installed certificates", TerminalColor.GREEN));
+        return destFile.getAbsolutePath(); // TODO: delete this file!
+    }
+
     private final KeyStore m_keyStore;
 
     public KeyStoreHelper(final KeyStore _ks) {
@@ -80,19 +95,5 @@ public class KeyStoreHelper {
             tgt.store(fos, _pw.toCharArray());
         }
         return dcmFile.getAbsolutePath();
-    }
-
-    public static String extractTrustFromInstalledCerts() throws IOException {
-        final File destFile = TempFileManager.createTempFile(null);
-        destFile.delete();
-        final ProcessResult cmdResults = ProcessLauncher.exec("/QOpenSys/pkgs/bin/trust extract --format=java-cacerts --purpose=server-auth -v " + destFile.getAbsolutePath());
-        if (0 != cmdResults.getExitStatus()) {
-            for (final String errLine : cmdResults.getStderr()) {
-                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
-            }
-            throw new IOException("Error extracting trusted certificates");
-        }
-        System.out.println(StringUtils.colorizeForTerminal("Successfully extracted installed certificates", TerminalColor.GREEN));
-        return destFile.getAbsolutePath(); // TODO: delete this file!
     }
 }

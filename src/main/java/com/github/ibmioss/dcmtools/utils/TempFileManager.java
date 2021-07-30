@@ -17,6 +17,14 @@ public class TempFileManager {
     }
     private static final List<File> s_filesToCleanup = new LinkedList<File>();
 
+    public static void cleanup() {
+        for (final File f : s_filesToCleanup) {
+            if (!f.delete()) {
+                f.deleteOnExit();
+            }
+        }
+    }
+
     public static File createTempFile(final String _fileName) throws IOException {
         final File dotDir = new File(System.getProperty("user.home", "~"), ".dcmimport");
         dotDir.mkdirs();
@@ -30,13 +38,5 @@ public class TempFileManager {
         ret.deleteOnExit();
         s_filesToCleanup.add(ret);
         return ret;
-    }
-
-    public static void cleanup() {
-        for (final File f : s_filesToCleanup) {
-            if (!f.delete()) {
-                f.deleteOnExit();
-            }
-        }
     }
 }
