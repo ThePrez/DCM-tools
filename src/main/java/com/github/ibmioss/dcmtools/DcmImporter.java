@@ -1,10 +1,19 @@
 package com.github.ibmioss.dcmtools;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.CertFileProcessor.ImportOptions;
+import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
+import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
+import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 
 /**
@@ -55,7 +64,7 @@ public class DcmImporter {
         }
         try {// TODO: handle multi-file better
             for (final String fetchFrom : fetchFroms) {
-                files.add(CertFileProcessor.fetchCert(opts, fetchFrom));
+                files.add(fetchCerts(opts.isYesMode, fetchFrom));
             }
             if (files.isEmpty()) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
@@ -68,10 +77,10 @@ public class DcmImporter {
 
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
-            CertFileProcessor.cleanup();
+            TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
         } finally {
-            CertFileProcessor.cleanup();
+            TempFileManager.cleanup();
         }
 
     }
@@ -96,5 +105,38 @@ public class DcmImporter {
         System.err.println(usage);
         System.exit(-1);
     }
-
+    private static String fetchCerts(final boolean _isYesMode, final String _fetchFrom) throws IOException {
+        final ProcessResult cmdResults = ProcessLauncher.exec("openssl s_client -connect " + _fetchFrom + " -showcerts");
+        if (0 != cmdResults.getExitStatus()) {
+            for (final String errLine : cmdResults.getStderr()) {
+                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
+            }
+            throw new IOException("Error extracting trusted certificates");
+        }
+        boolean isCertificateFetched = false;
+        for (final String line : cmdResults.getStdout()) {
+            if (line.contains("END CERTIFICATE")) {
+                isCertificateFetched = true;
+            }
+            System.out.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
+        }
+        if (!isCertificateFetched) {
+            for (final String errLine : cmdResults.getStderr()) {
+                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
+            }
+            throw new IOException("Error extracting trusted certificates");
+        }
+        final String reply = _isYesMode ? "y" : ConsoleUtils.askUserWithDefault("Do you trust the certificate(s) listed above? [y/N] ", "N");
+        if (!reply.toLowerCase().trim().startsWith("y")) {
+            throw new IOException("User Canceled");
+        }
+        final File destFile = TempFileManager.createTempFile(_fetchFrom + ".pem");
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile, true), "UTF-8"))) {
+            for (final String line : cmdResults.getStdout()) {
+                bw.write(line);
+                bw.write("\n");
+            }
+        }
+        return destFile.getAbsolutePath();
+    }
 }
