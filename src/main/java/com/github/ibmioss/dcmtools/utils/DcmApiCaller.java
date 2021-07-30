@@ -111,7 +111,7 @@ public class DcmApiCaller implements Closeable {
                 // Show each message.
                 System.err.println(StringUtils.colorizeForTerminal("" + msg, TerminalColor.BRIGHT_RED));
             }
-            throw new IOException("DCM API Call failure");
+            throw new IOException("DCM API call failure");
         }
         final String errorMessageId = _ec.getMessageID();
         for (final AS400Message msg : _program.getMessageList()) {
@@ -121,7 +121,7 @@ public class DcmApiCaller implements Closeable {
         if (!StringUtils.isEmpty(errorMessageId)) {
             throw new IOException("API gave error message " + new MessageLookerUpper(errorMessageId.trim()));
         }
-        System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+        System.out.println(StringUtils.colorizeForTerminal("DCM operation successful", TerminalColor.GREEN));
     }
 
     @Override
