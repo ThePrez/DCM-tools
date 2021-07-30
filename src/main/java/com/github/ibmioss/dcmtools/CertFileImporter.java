@@ -21,7 +21,7 @@ import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 
-public class CertFileProcessor {
+public class CertFileImporter {
     public static class ImportOptions {
         public boolean isYesMode = false;
         public boolean isPasswordProtected = false;
@@ -35,7 +35,7 @@ public class CertFileProcessor {
 
     private final String m_fileName;
 
-    public CertFileProcessor(final String _fileName) throws IOException {
+    public CertFileImporter(final String _fileName) throws IOException {
         m_fileName = null == _fileName ? KeyStoreHelper.extractTrustFromInstalledCerts() : _fileName;
     }
 

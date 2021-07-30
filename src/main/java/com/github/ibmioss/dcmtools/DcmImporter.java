@@ -8,7 +8,7 @@ import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.github.ibmioss.dcmtools.CertFileProcessor.ImportOptions;
+import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
@@ -80,7 +80,7 @@ public class DcmImporter {
             } else if (arg.startsWith("--target=")) {
                 final String target = extractValue(arg);
                 if ("system".equalsIgnoreCase(target) || "*system".equalsIgnoreCase(target)) {
-                    opts.dcmTarget = CertFileProcessor.SYSTEM_DCM_STORE;
+                    opts.dcmTarget = CertFileImporter.SYSTEM_DCM_STORE;
                 } else {
                     opts.dcmTarget = target;
                 }
@@ -106,7 +106,7 @@ public class DcmImporter {
                 printUsageAndExit();
             }
             for (final String file : files) {
-                final CertFileProcessor off = new CertFileProcessor(file);
+                final CertFileImporter off = new CertFileImporter(file);
                 off.doImport(opts);
             }
 
