@@ -15,6 +15,7 @@ import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ProgramParameter;
+import com.ibm.as400.access.ServiceProgramCall;
 
 public class DcmApiCaller implements Closeable {
 
@@ -38,10 +39,10 @@ public class DcmApiCaller implements Closeable {
     }
 
     public void callQycdUpdateCertUsage(String _appId, String _certStoreName, String _certId) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
-        final ProgramCall program = new ProgramCall(m_conn);
-        final String programName = "/QSYS.LIB/QYKMIMPK.PGM";
+        final ServiceProgramCall program = new ServiceProgramCall(m_conn);
+        final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
         final ProgramParameter[] parameterList = new ProgramParameter[8];
-        // 1     Application ID  Output  Char(*)
+        // 1 Application ID Output Char(*)
         parameterList[0] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
         // 2 Length of application ID Input Binary(4)
         parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
@@ -55,14 +56,16 @@ public class DcmApiCaller implements Closeable {
         parameterList[5] = new ProgramParameter(new AS400Text(_certId.length()).toBytes(_certId));
         // 7 Length of certificate ID Input Binary(4)
         parameterList[6] = new ProgramParameter(new AS400Bin4().toBytes(_certId.length()));
-        // 8   Error code  I/O     Char(*)
+        // 8 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[7] = ec;
 
         program.setProgram(programName, parameterList);
+        program.setProcedureName("QycdUpdateCertUsage");
         // Run the program.
         runProgram(program, ec);
     }
+
     // QykmImportKeyStore
     public void callQykmImportKeyStore(final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
@@ -95,6 +98,98 @@ public class DcmApiCaller implements Closeable {
         // 12 Length of import file password Input Binary(4)
         parameterList[11] = new ProgramParameter(new AS400Bin4().toBytes(_importFilePw.length()));
         // 13 CCSID of import file password Input Binary(4)
+        parameterList[12] = new ProgramParameter(new AS400Bin4().toBytes(1208));
+        // 14 Error code I/O Char(*)
+        final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
+        parameterList[13] = ec;
+
+        program.setProgram(programName, parameterList);
+        // Run the program.
+        runProgram(program, ec);
+    }
+
+    public void callQycdAddCACertTrust(final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+        final ServiceProgramCall program = new ServiceProgramCall(m_conn);
+        // Initialize the name of the program to run.
+        final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
+        final ProgramParameter[] parameterList = new ProgramParameter[6];
+        // 1 Application ID Input Char(*)
+        parameterList[0] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
+        // 2 Length of application ID Input Binary(4)
+        parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
+        // 3 Trusted CA certificate ID type Input Char(1)
+        parameterList[2] = new ProgramParameter(new AS400Text(1).toBytes("1"));
+        // 4 Trusted CA certificate ID Input Char(*)
+        parameterList[3] = new ProgramParameter(new AS400Text(_alias.length()).toBytes(_alias));
+        // 5 Length of trusted CA certificate ID Input Binary(4)
+        parameterList[4] = new ProgramParameter(new AS400Bin4().toBytes(_alias.length()));
+        // 6 Error code I/O Char(*)
+        final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
+        parameterList[5] = ec;
+
+        program.setProgram(programName, parameterList);
+        program.setProcedureName("QycdAddCACertTrust");
+        // Run the program.
+        runProgram(program, ec);
+    }
+
+    public void callQycdRemoveCertUsage(final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+        final ServiceProgramCall program = new ServiceProgramCall(m_conn);
+        // Initialize the name of the program to run.
+        final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
+        final ProgramParameter[] parameterList = new ProgramParameter[7];
+        // 1 Application ID Input Char(*)
+        parameterList[0] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
+        // 2 Length of application ID Input Binary(4)
+        parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
+        // 3 Certificate store name Input Char(*)
+        parameterList[2] = new ProgramParameter(new AS400Text(_dcmStore.length()).toBytes(_dcmStore));
+        // 4 Length of certificate store name Input Binary(4)
+        parameterList[3] = new ProgramParameter(new AS400Bin4().toBytes(_dcmStore.length()));
+        // 5 Certificate ID Input Char(*)
+        parameterList[4] = new ProgramParameter(new AS400Text(_alias.length()).toBytes(_alias));
+        // 6 Length of certificate ID Input Binary(4)
+        parameterList[5] = new ProgramParameter(new AS400Bin4().toBytes(_alias.length()));
+        // 7 Error code I/O Char(*)
+        final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
+        parameterList[6] = ec;
+
+        program.setProgram(programName, parameterList);
+        program.setProcedureName("QycdRemoveCertUsage");
+        // Run the program.
+        runProgram(program, ec);
+    }
+
+    public void callQykmExportKeyStore(final String _exportFile, final String _exportFilePw, final String _dcmStore, final String _dcmStorePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+        final ProgramCall program = new ProgramCall(m_conn);
+        // Initialize the name of the program to run.
+        final String programName = "/QSYS.LIB/QYKMEXPK.PGM";
+        final ProgramParameter[] parameterList = new ProgramParameter[14];
+        // 1 Certificate store path and file Name Input Char(*)
+        parameterList[0] = new ProgramParameter(new AS400Text(_dcmStore.length()).toBytes(_dcmStore));
+        // 2 Length of certificate store path and file Name Input Binary(4)
+        parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_dcmStore.length()));
+        // 3 Format of certificate store path and file Name Input Char(8)
+        parameterList[2] = new ProgramParameter(new AS400Text(8).toBytes("OBJN0100"));
+        // 4 Certificate store password Input Char(*)
+        parameterList[3] = new ProgramParameter(new AS400Text(_dcmStorePw.length(), 1208).toBytes(_dcmStorePw));
+        // 5 Length of certificate store password Input Binary(4)
+        parameterList[4] = new ProgramParameter(new AS400Bin4().toBytes(_dcmStorePw.length()));
+        // 6 CCSID of certificate store password Input Binary(4)
+        parameterList[5] = new ProgramParameter(new AS400Bin4().toBytes(1208));
+        // 7 Export path and file name Input Char(*)
+        parameterList[6] = new ProgramParameter(new AS400Text(_exportFile.length()).toBytes(_exportFile));
+        // 8 Length of export path and file name Input Binary(4)
+        parameterList[7] = new ProgramParameter(new AS400Bin4().toBytes(_exportFile.length()));
+        // 9 Format of import path and file name Input Char(8)
+        parameterList[8] = new ProgramParameter(new AS400Text(8).toBytes("OBJN0100"));
+        // 10 Version of export file Input Char(10)
+        parameterList[9] = new ProgramParameter(new AS400Text(10).toBytes("*PKCS12V3 "));
+        // 11 Export file password Input Char(*)
+        parameterList[10] = new ProgramParameter(new AS400Text(_exportFilePw.length(), 1208).toBytes(_exportFilePw));
+        // 12 Length of export file password Input Binary(4)
+        parameterList[11] = new ProgramParameter(new AS400Bin4().toBytes(_exportFile.length()));
+        // 13 CCSID of export file password Input Binary(4)
         parameterList[12] = new ProgramParameter(new AS400Bin4().toBytes(1208));
         // 14 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
