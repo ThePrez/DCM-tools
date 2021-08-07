@@ -90,7 +90,7 @@ public class DcmApiCaller implements Closeable {
         runProgram(program, ec);
     }
 
-    public void callQycdRenewCertificate(final String _csr, String _dcmStore, String _dcmStorePw, String _dcmImportFile, String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdRenewCertificate(final String _csr, final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QYCDRNWC.PGM";
@@ -131,7 +131,7 @@ public class DcmApiCaller implements Closeable {
         runProgram(program, ec);
     }
 
-    public void callQycdUpdateCertUsage(String _appId, String _certStoreName, String _certId) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdUpdateCertUsage(final String _appId, final String _certStoreName, final String _certId) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
         final ProgramParameter[] parameterList = new ProgramParameter[8];
@@ -246,7 +246,7 @@ public class DcmApiCaller implements Closeable {
         m_conn.disconnectAllServices();
     }
 
-    private void runProgram(ProgramCall _program, ErrorCodeParameter _ec) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    private void runProgram(final ProgramCall _program, final ErrorCodeParameter _ec) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         if (!_program.run()) {
             for (final AS400Message msg : _program.getMessageList()) {
                 // Show each message.

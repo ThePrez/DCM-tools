@@ -86,7 +86,7 @@ public class StringUtils {
         return s_isEmojiSupported ? "¯\\_\uD83D\uDE00_/¯" : "<unknown>";
     }
 
-    public static boolean isEmpty(char[] _str) {
+    public static boolean isEmpty(final char[] _str) {
         return null == _str || isEmpty(new String(_str));
     }
 
@@ -94,7 +94,7 @@ public class StringUtils {
         return (null == _str) || (_str.trim().isEmpty());
     }
 
-    public static boolean isNonEmpty(String _str) {
+    public static boolean isNonEmpty(final String _str) {
         return !isEmpty(_str);
     }
 

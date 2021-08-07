@@ -42,11 +42,11 @@ public class CertFileImporter {
             return isPasswordProtected;
         }
 
-        public void setPassword(String password) {
+        public void setPassword(final String password) {
             this.password = password;
         }
 
-        public void setPasswordProtected(boolean isPasswordProtected) {
+        public void setPasswordProtected(final boolean isPasswordProtected) {
             this.isPasswordProtected = isPasswordProtected;
         }
     }

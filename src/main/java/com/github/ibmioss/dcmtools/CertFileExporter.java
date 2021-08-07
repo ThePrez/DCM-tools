@@ -50,15 +50,15 @@ public class CertFileExporter {
             return isPasswordProtected;
         }
 
-        public void setOutputFileFormat(String outputFileFormat) {
+        public void setOutputFileFormat(final String outputFileFormat) {
             this.outputFileFormat = outputFileFormat;
         }
 
-        public void setPassword(String password) {
+        public void setPassword(final String password) {
             this.password = password.toCharArray();
         }
 
-        public void setPasswordProtected(boolean isPasswordProtected) {
+        public void setPasswordProtected(final boolean isPasswordProtected) {
             this.isPasswordProtected = isPasswordProtected;
         }
 
@@ -76,15 +76,15 @@ public class CertFileExporter {
 
         final boolean isYesMode = _opts.isYesMode();
 
-        File tmpFile = TempFileManager.createTempFile();
+        final File tmpFile = TempFileManager.createTempFile();
         tmpFile.delete();
         try (DcmApiCaller apiCaller = new DcmApiCaller(isYesMode)) {
             apiCaller.callQykmExportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), tmpFile.getAbsolutePath(), TEMP_KEYSTORE_PWD);
         }
 
-        KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TEMP_KEYSTORE_PWD);
-        KeyStore tempKs = loader.getKeyStore();
-        KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(_opts.outputFileFormat) ? "pkcs12" : _opts.outputFileFormat);
+        final KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TEMP_KEYSTORE_PWD);
+        final KeyStore tempKs = loader.getKeyStore();
+        final KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(_opts.outputFileFormat) ? "pkcs12" : _opts.outputFileFormat);
         for (final String alias : Collections.list(tempKs.aliases())) {
             final Certificate cert = tempKs.getCertificate(alias);
             if (cert instanceof X509Certificate) {

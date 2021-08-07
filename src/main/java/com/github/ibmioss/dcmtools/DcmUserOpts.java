@@ -12,6 +12,7 @@ public abstract class DcmUserOpts {
         final int equalsSign = _str.indexOf('=');
         return (-1 == equalsSign) ? _str : _str.substring(1 + equalsSign);
     }
+
     private String dcmPassword = null;
     private String dcmStore = SYSTEM_DCM_STORE;
 
@@ -45,15 +46,15 @@ public abstract class DcmUserOpts {
         return isYesMode;
     }
 
-    public void setDcmPassword(String dcmPassword) {
+    public void setDcmPassword(final String dcmPassword) {
         this.dcmPassword = dcmPassword;
     }
 
-    public void setDcmStore(String _dcmStore) {
+    public void setDcmStore(final String _dcmStore) {
         this.dcmStore = _dcmStore;
     }
 
-    public void setYesMode(boolean isYesMode) {
+    public void setYesMode(final boolean isYesMode) {
         this.isYesMode = isYesMode;
     }
 
