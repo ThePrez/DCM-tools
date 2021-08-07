@@ -38,6 +38,10 @@ public class DcmApiCaller implements Closeable {
         }
     }
 
+    public void callQycdRetrieveCertUsageInfo(final String _selectionCriteria) {
+        //TODO
+        
+    }
     public void callQycdAddCACertTrust(final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         // Initialize the name of the program to run.
