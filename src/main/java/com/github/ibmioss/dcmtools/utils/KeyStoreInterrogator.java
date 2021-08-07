@@ -1,5 +1,8 @@
 package com.github.ibmioss.dcmtools.utils;
 
+import java.beans.PropertyVetoException;
+import java.io.File;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
@@ -7,7 +10,11 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 
+import com.github.ibmioss.dcmtools.CertFileExporter;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.ErrorCompletingRequestException;
+import com.ibm.as400.access.ObjectDoesNotExistException;
 
 public class KeyStoreInterrogator {
     private KeyStore m_keyStore;
@@ -21,7 +28,6 @@ public class KeyStoreInterrogator {
     }
 
     public String getAliasOfCertOrNull(final Certificate _cert) throws KeyStoreException {
-
         for (String alias : Collections.list(m_keyStore.aliases())) {
             Certificate certInKeyStore = m_keyStore.getCertificate(alias);
 
@@ -40,6 +46,10 @@ public class KeyStoreInterrogator {
             }
         }
         return null;
-
+    }
+    public static KeyStoreInterrogator getFromDCM(boolean _isYesMode, String _dcmStore, String _dcmStorePw) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException { 
+        File tmpFile = CertFileExporter.exportDcmStore(_isYesMode, _dcmStore, _dcmStorePw, null);
+        KeyStoreLoader loader= new KeyStoreLoader(tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD, null, false);
+        return new KeyStoreInterrogator(loader.getKeyStore());
     }
 }

@@ -14,6 +14,7 @@ import javax.security.auth.x500.X500Principal;
 
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
+import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
@@ -83,6 +84,17 @@ public class CertFileImporter {
         final KeyStore keyStore = new KeyStoreLoader(m_fileName, _opts.getPasswordOrNull(), _opts.getLabel(), _opts.isCasOnly()).getKeyStore();
         System.out.println(StringUtils.colorizeForTerminal("Sanity check successful", TerminalColor.GREEN));
 
+        final KeyStoreInterrogator dcmChecker = KeyStoreInterrogator.getFromDCM(isYesMode, _opts.getDcmStore(), _opts.getDcmPassword());
+
+        // Check for conflicting aliases (certificate is already in the store under a different alias
+        for (final String alias : Collections.list(keyStore.aliases())) {
+            final Certificate cert = keyStore.getCertificate(alias);
+            String conflictingAlias = dcmChecker.getAliasOfCertOrNull(cert);
+            if(null != conflictingAlias) {
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+conflictingAlias+"':\n"+cert, TerminalColor.YELLOW));
+            }
+        }
+        
         // Ask user confirmation
         System.out.println("The following certificates will be processed:");
         for (final String alias : Collections.list(keyStore.aliases())) {
