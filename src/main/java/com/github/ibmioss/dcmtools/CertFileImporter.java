@@ -91,10 +91,13 @@ public class CertFileImporter {
             final Certificate cert = keyStore.getCertificate(alias);
             String conflictingAlias = dcmChecker.getAliasOfCertOrNull(cert);
             if(null != conflictingAlias) {
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+conflictingAlias+"':\n"+cert, TerminalColor.YELLOW));
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+conflictingAlias+"':\n"+getCertInfoStr(cert,"    "), TerminalColor.YELLOW));
+                keyStore.deleteEntry(alias);
             }
         }
-        
+        if(!keyStore.aliases().hasMoreElements()) {
+            throw new IOException("No certificates to import");
+        }
         // Ask user confirmation
         System.out.println("The following certificates will be processed:");
         for (final String alias : Collections.list(keyStore.aliases())) {
@@ -119,6 +122,18 @@ public class CertFileImporter {
         try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
             caller.callQykmImportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), dcmImportFile, TempFileManager.TEMP_KEYSTORE_PWD);
         }
+    }
+
+    private String getCertInfoStr(Certificate _cert, String _linePrefix) {
+        if(!(_cert instanceof X509Certificate)) {
+            return ""+_cert;
+        }
+        String ret = "";
+        X509Certificate x509 = (X509Certificate) _cert;
+        ret += _linePrefix+"Issuer: "+x509.getIssuerX500Principal().getName(X500Principal.RFC1779);
+        ret += "\n";
+        ret += _linePrefix+"Subject: "+x509.getSubjectX500Principal().getName(X500Principal.CANONICAL);
+                return ret;
     }
 
 }
