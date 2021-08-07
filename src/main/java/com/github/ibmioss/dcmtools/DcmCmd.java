@@ -27,6 +27,9 @@ public class DcmCmd {
             case "export":
                 DcmExportCmd.main(passOnArgs);
                 return;
+            case "exportCert":
+                DcmExportCmd.main(passOnArgs);
+                return;
             case "assign":
                 DcmAssignCmd.main(passOnArgs);
                 return;

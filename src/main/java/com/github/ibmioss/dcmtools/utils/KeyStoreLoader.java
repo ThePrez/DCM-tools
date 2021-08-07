@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Provider.Service;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -42,7 +45,7 @@ public class KeyStoreLoader {
 
     public KeyStoreLoader(final String _file, final String _pw, final String _label, final boolean _caOnly) throws IOException {
         // Try to load as keystore file
-        final String[] keystoreTypes = new String[] { KeyStore.getDefaultType(), "JKS", "pkcs12", "jceks" };
+        final String[] keystoreTypes = new String[] { KeyStore.getDefaultType(), "JKS", "PKCS12", "JCEKS", "PKCS12V3" };
         KeyStore loaded = null;
         for (final String keystoreType : keystoreTypes) {
             try (FileInputStream fis = new FileInputStream(_file)) {

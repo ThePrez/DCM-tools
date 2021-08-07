@@ -22,7 +22,11 @@ It can also be used to fetch certificates from a remote host and import to DCM.
 
 ### `dcmexport`
 
-Used to export the DCM keystore to file
+Used to export the entire DCM keystore to file
+
+### `dcmexport`
+
+Used to export a single certificate from a DCM keystore to file
 
 ### `dcmassign`
 
@@ -80,6 +84,17 @@ Usage: dcmassign [options] --app=<id> --cert=<id>
         --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'
                                          to indicate the *SYSTEM store (default)
                           ca-certificates-mozilla package
+                          
+Usage: dcmexportcert [options] <filename>
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'
+                                       to indicate the *SYSTEM store (default)
+        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
+        --cert=<id>:                   ID of the certificate to export
+        --format=<format>:             Format of the output file (PEM/DER).
+                                        (default: PEM)
 
 ```
 

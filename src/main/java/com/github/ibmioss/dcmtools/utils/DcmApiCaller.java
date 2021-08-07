@@ -187,7 +187,7 @@ public class DcmApiCaller implements Closeable {
         // 11 Export file password Input Char(*)
         parameterList[10] = new ProgramParameter(new AS400Text(_exportFilePw.length(), 1208).toBytes(_exportFilePw));
         // 12 Length of export file password Input Binary(4)
-        parameterList[11] = new ProgramParameter(new AS400Bin4().toBytes(_exportFile.length()));
+        parameterList[11] = new ProgramParameter(new AS400Bin4().toBytes(_exportFilePw.length()));
         // 13 CCSID of export file password Input Binary(4)
         parameterList[12] = new ProgramParameter(new AS400Bin4().toBytes(1208));
         // 14 Error code I/O Char(*)

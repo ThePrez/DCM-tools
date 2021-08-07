@@ -65,6 +65,7 @@ public class DcmExportCmd {
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            e.printStackTrace();
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
         } finally {

@@ -39,11 +39,21 @@ public class CertFileExporter {
                 return null;
             }
             if (StringUtils.isEmpty(password) && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserForPwd("Enter input file password: ");
+                final String resp = ConsoleUtils.askUserForPwd("Enter output file password: ");
                 return password = resp.toCharArray();
             } else {
                 return password;
             }
+        }
+        public char[] getPasswordOrThrow() throws IOException {
+            if (null != password) {
+                return password;
+            }
+            if (StringUtils.isEmpty(password) && !isYesMode()) {
+                final String resp = ConsoleUtils.askUserForPwd("Enter output file password: ");
+                return password = resp.toCharArray();
+            }
+            throw new IOException("ERROR: Password is required");
         }
 
         public boolean isPasswordProtected() {
@@ -77,6 +87,7 @@ public class CertFileExporter {
         final KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD, null, false);
         final KeyStore tempKs = loader.getKeyStore();
         final KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(_opts.outputFileFormat) ? "pkcs12" : _opts.outputFileFormat);
+        destKs.load(null, null);
         for (final String alias : Collections.list(tempKs.aliases())) {
             final Certificate cert = tempKs.getCertificate(alias);
             if (cert instanceof X509Certificate) {
@@ -87,7 +98,7 @@ public class CertFileExporter {
             destKs.setCertificateEntry(alias, cert);
         }
         try (FileOutputStream out = new FileOutputStream(m_fileName)) {
-            destKs.store(out, _opts.getPasswordOrNull());
+            destKs.store(out, _opts.getPasswordOrThrow());
         }
     }
 
