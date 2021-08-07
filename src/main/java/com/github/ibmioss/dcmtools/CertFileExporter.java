@@ -75,12 +75,7 @@ public class CertFileExporter {
     public void doExport(final ExportOptions _opts) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
 
         final boolean isYesMode = _opts.isYesMode();
-
-        final File tmpFile = TempFileManager.createTempFile();
-        tmpFile.delete();
-        try (DcmApiCaller apiCaller = new DcmApiCaller(isYesMode)) {
-            apiCaller.callQykmExportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), tmpFile.getAbsolutePath(), TEMP_KEYSTORE_PWD);
-        }
+        final File tmpFile = exportDcmStore(_opts.isYesMode(), _opts.getDcmStore(), _opts.getDcmPassword(), null);
 
         final KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TEMP_KEYSTORE_PWD);
         final KeyStore tempKs = loader.getKeyStore();
@@ -97,6 +92,20 @@ public class CertFileExporter {
         try (FileOutputStream out = new FileOutputStream(m_fileName)) {
             destKs.store(out, _opts.getPasswordOrNull());
         }
+    }
+
+    public static File exportDcmStore(final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+        final File dest;
+        if (null == _dest) {
+            dest = TempFileManager.createTempFile();
+            dest.delete();
+        } else {
+            dest = new File(_dest);
+        }
+        try (DcmApiCaller apiCaller = new DcmApiCaller(_isYesMode)) {
+            apiCaller.callQykmExportKeyStore(_dcmStore, _dcmStorePw, dest.getAbsolutePath(), TEMP_KEYSTORE_PWD);
+        }
+        return dest;
     }
 
 }
