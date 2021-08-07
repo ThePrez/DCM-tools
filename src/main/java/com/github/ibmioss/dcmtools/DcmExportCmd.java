@@ -34,7 +34,7 @@ public class DcmExportCmd {
                 opts.setPassword(DcmUserOpts.extractValue(arg));
             } else if ("--password".equals(arg)) {
                 opts.setPasswordProtected(true);
-            } else if (arg.startsWith("--source=")) {
+            } else if (arg.startsWith("--dcm-store=")) {
                 final String source = DcmUserOpts.extractValue(arg);
                 if ("system".equalsIgnoreCase(source) || "*system".equalsIgnoreCase(source)) {
                     opts.setDcmStore(DcmUserOpts.SYSTEM_DCM_STORE);
@@ -81,7 +81,7 @@ public class DcmExportCmd {
                                 + "        -y:                            Do not ask for confirmation\n"
                                 + "        --password[=password]:         Indicate that the output file is password-protected,\n"
                                 + "                                       and optionally provide a password\n"
-                                + "        --source=<system/filename>:    Specify the target keystore, or specify 'system'\n"
+                                + "        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'\n"
                                 + "                                       to indicate the *SYSTEM store (default)\n"
                                 + "        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)\n"
                                 + "        --format=<format>              Format of the output file (jceks, pks, pkcs12).\n"

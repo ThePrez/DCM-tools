@@ -80,7 +80,7 @@ public class DcmImportCmd {
                 }
             } else if (arg.startsWith("--dcm-password=")) {
                 opts.setDcmPassword(DcmUserOpts.extractValue(arg));
-            } else if (arg.startsWith("--id=")) {
+            } else if (arg.startsWith("--cert=")) {
                 opts.setLabel(DcmUserOpts.extractValue(arg));
             } else if ("--ca-only".equals(arg)) {
                 opts.setCasOnly(true);
@@ -132,12 +132,12 @@ public class DcmImportCmd {
                                 + "        -y:                            Do not ask for confirmation\n"
                                 + "        --password[=password]:         Indicate that the input file is password-protected,\n"
                                 + "                                       and optionally provide a password\n"
-                                + "        --target=<system/filename>:    Specify the target keystore, or specify 'system'\n"
+                                + "        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'\n"
                                 + "                                       to indicate the *SYSTEM store (default)\n"
                                 + "        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)\n"
-                                + "        --fetch-from=<hostname>[:port] Fetch the certificate from the given hostname/port\n"
+                                + "        --fetch-from=<hostname>[:port] Fetch CA certificate(s) from the given hostname/port\n"
                                 + "        --ca-only                      Only import CA Certificates\n"
-                                + "        --id=<label>                   Recommend a certificate ID when imported into DCM\n"
+                                + "        --cert=<id>                    Recommend a certificate ID when imported into DCM\n"
                                 + "        --installed-certs:             import all certificates that are installed into PASE\n"
                                 + "                                       environment, for instance, certificates in the\n"
                                 + "                                       ca-certificates-mozilla package\n"
