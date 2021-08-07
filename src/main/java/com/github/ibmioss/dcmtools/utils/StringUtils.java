@@ -86,8 +86,16 @@ public class StringUtils {
         return s_isEmojiSupported ? "¯\\_\uD83D\uDE00_/¯" : "<unknown>";
     }
 
+    public static boolean isEmpty(char[] _str) {
+        return null == _str || isEmpty(new String(_str));
+    }
+
     public static boolean isEmpty(final String _str) {
         return (null == _str) || (_str.trim().isEmpty());
+    }
+
+    public static boolean isNonEmpty(String _str) {
+        return !isEmpty(_str);
     }
 
     public static String spacePad(final String _str, final int _len) {

@@ -14,7 +14,8 @@ import javax.security.auth.x500.X500Principal;
 
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.KeyStoreHelper;
+import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
+import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400SecurityException;
@@ -22,38 +23,49 @@ import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 
 public class CertFileImporter {
-    public static class ImportOptions {
-        public boolean isYesMode = false;
-        public boolean isPasswordProtected = false;
-        public String password = null;
-        public String dcmPassword = null;
-        public String dcmTarget;
+    public static class ImportOptions extends DcmUserOpts {
+        private boolean isPasswordProtected = false;
+        private String password = null;
+
+        public String getPasswordOrNull() throws IOException {
+            if (!isPasswordProtected) {
+                return null;
+            }
+            if (StringUtils.isEmpty(password) && !isYesMode()) {
+                final String resp = ConsoleUtils.askUserForPwd("Enter input file password: ");
+                return password = resp;
+            } else {
+                return password;
+            }
+        }
+
+        public boolean isPasswordProtected() {
+            return isPasswordProtected;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public void setPasswordProtected(boolean isPasswordProtected) {
+            this.isPasswordProtected = isPasswordProtected;
+        }
     }
 
-    private static final String TEMP_KEYSTORE_PWD = StringUtils.generateRandomString(10);
     static final String SYSTEM_DCM_STORE = "/QIBM/UserData/ICSS/Cert/Server/DEFAULT.KDB";
+    private static final String TEMP_KEYSTORE_PWD = StringUtils.generateRandomString(10);
 
     private final String m_fileName;
 
     public CertFileImporter(final String _fileName) throws IOException {
-        m_fileName = null == _fileName ? KeyStoreHelper.extractTrustFromInstalledCerts() : _fileName;
+        m_fileName = null == _fileName ? KeyStoreLoader.extractTrustFromInstalledCerts() : _fileName;
     }
 
     public void doImport(final ImportOptions _opts) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
 
-        final boolean isYesMode = _opts.isYesMode;
+        final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
-        final KeyStore keyStore;
-        if (_opts.isPasswordProtected) {
-            if (StringUtils.isEmpty(_opts.password) && !isYesMode) {
-                final String password = ConsoleUtils.askUserForPwd("Enter input file password: ");
-                keyStore = new KeyStoreHelper(m_fileName, StringUtils.isEmpty(password) ? null : password).getKeyStore();
-            } else {
-                keyStore = new KeyStoreHelper(m_fileName, _opts.password).getKeyStore();
-            }
-        } else {
-            keyStore = new KeyStoreHelper(m_fileName, null).getKeyStore();
-        }
+        final KeyStore keyStore = new KeyStoreLoader(m_fileName, _opts.getPasswordOrNull()).getKeyStore();
         System.out.println(StringUtils.colorizeForTerminal("Sanity check successful", TerminalColor.GREEN));
 
         // Ask user confirmation
@@ -72,37 +84,13 @@ public class CertFileImporter {
             return;
         }
 
-        // Resolve the target DCM keystore
-        final String dcmStore;
-        if (StringUtils.isEmpty(_opts.dcmTarget)) {
-            final String dcmStoreResp = isYesMode ? "*SYSTEM" : ConsoleUtils.askUserWithDefault("Target DCM keystore: (leave blank for *SYSTEM) ", "*SYSTEM");
-            if ("*SYSTEM".equals(dcmStoreResp.trim().toUpperCase()) || "SYSTEM".equals(dcmStoreResp.trim().toUpperCase())) {
-                dcmStore = SYSTEM_DCM_STORE;
-            } else {
-                dcmStore = dcmStoreResp;
-            }
-        } else {
-            dcmStore = _opts.dcmTarget;
-        }
-
-        // Resolve the target DCM keystore password
-        final String dcmStorePw;
-        if (StringUtils.isEmpty(_opts.dcmPassword)) {
-            if (isYesMode) {
-                throw new IOException("DCM keystore password not specified");
-            }
-            dcmStorePw = ConsoleUtils.askUserForPwd("Enter DCM keystore password: ");
-        } else {
-            dcmStorePw = _opts.dcmPassword;
-        }
-
         // Convert the KeyStore object to a file in the format needed by the DCM API
-        final String dcmImportFile = new KeyStoreHelper(keyStore).saveToDcmApiFormatFile(TEMP_KEYSTORE_PWD);
+        final String dcmImportFile = new KeyStoreLoader(keyStore).saveToDcmApiFormatFile(TEMP_KEYSTORE_PWD);
         ;
 
         // .... and... call the DCM API to do the import!
         try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
-            caller.callQykmImportKeyStore(dcmStore, dcmStorePw, dcmImportFile, TEMP_KEYSTORE_PWD);
+            caller.callQykmImportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), dcmImportFile, TEMP_KEYSTORE_PWD);
         }
     }
 

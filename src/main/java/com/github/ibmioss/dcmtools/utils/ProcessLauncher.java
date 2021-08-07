@@ -10,9 +10,9 @@ import java.util.List;
 public class ProcessLauncher {
 
     public static class ProcessResult {
-        private final List<String> m_stdout;
-        private final List<String> m_stderr;
         private final int m_exitStatus;
+        private final List<String> m_stderr;
+        private final List<String> m_stdout;
 
         public ProcessResult(final List<String> m_stdout, final List<String> m_stderr, final int m_exitStatus) {
             super();

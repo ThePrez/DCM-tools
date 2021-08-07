@@ -7,6 +7,7 @@ import java.util.List;
 
 public class TempFileManager {
 
+    private static final List<File> s_filesToCleanup = new LinkedList<File>();
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -15,7 +16,6 @@ public class TempFileManager {
             }
         });
     }
-    private static final List<File> s_filesToCleanup = new LinkedList<File>();
 
     public static void cleanup() {
         for (final File f : s_filesToCleanup) {
@@ -23,6 +23,10 @@ public class TempFileManager {
                 f.deleteOnExit();
             }
         }
+    }
+
+    public static File createTempFile() throws IOException {
+        return createTempFile(null);
     }
 
     public static File createTempFile(final String _fileName) throws IOException {

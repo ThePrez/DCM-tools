@@ -16,7 +16,7 @@ import java.util.Collections;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 
-public class KeyStoreHelper {
+public class KeyStoreLoader {
     private static final String PKCS_12 = "PKCS12";
 
     public static String extractTrustFromInstalledCerts() throws IOException {
@@ -35,11 +35,11 @@ public class KeyStoreHelper {
 
     private final KeyStore m_keyStore;
 
-    public KeyStoreHelper(final KeyStore _ks) {
+    public KeyStoreLoader(final KeyStore _ks) {
         m_keyStore = _ks;
     }
 
-    public KeyStoreHelper(final String _file, final String _pw) throws IOException {
+    public KeyStoreLoader(final String _file, final String _pw) throws IOException {
         // Try to load as keystore file
         final String[] keystoreTypes = new String[] { KeyStore.getDefaultType(), "JKS", "pkcs12", "jceks" };
         KeyStore loaded = null;
