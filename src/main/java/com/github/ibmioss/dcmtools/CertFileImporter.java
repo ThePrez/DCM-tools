@@ -86,12 +86,33 @@ public class CertFileImporter {
 
         final KeyStoreInterrogator dcmChecker = KeyStoreInterrogator.getFromDCM(isYesMode, _opts.getDcmStore(), _opts.getDcmPassword());
 
-        // Check for conflicting aliases (certificate is already in the store under a different alias
+        // Check for conflicting aliases, where the certificate is already in the store under a different alias
+        System.out.println("Checking if the certificate is already in DCM....");
         for (final String alias : Collections.list(keyStore.aliases())) {
+            System.out.println("checking for conflicting cert to the one with alias "+alias);
             final Certificate cert = keyStore.getCertificate(alias);
             String conflictingAlias = dcmChecker.getAliasOfCertOrNull(cert);
-            if(null != conflictingAlias) {
+            if(null != conflictingAlias && !conflictingAlias.equals(alias)) {
                 System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+conflictingAlias+"':\n"+getCertInfoStr(cert,"    "), TerminalColor.YELLOW));
+                keyStore.deleteEntry(alias);
+            }
+        }
+        //check for the case where the alias already exists and we might overwrite it on import
+        System.out.println("Checking if the alias already exists....");
+        for (final String alias : Collections.list(keyStore.aliases())) {
+            System.out.println("checking cert at alias "+alias);
+            final Certificate cert = keyStore.getCertificate(alias);
+            Certificate preExistingCert = dcmChecker.getKeyStore().getCertificate(alias);
+            if(null != preExistingCert) {
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate will be replaced with certificate id '"+alias+"':\n"+getCertInfoStr(preExistingCert,"    "), TerminalColor.YELLOW));
+                if(!isYesMode) {
+                    final String reply = ConsoleUtils.askUserWithDefault("Do you want to continue aanyway and replace the above certificates in DCM? [y/N] ", "N");
+                    if (!reply.toLowerCase().trim().startsWith("y")) {
+                        keyStore.deleteEntry(alias);
+                        System.out.println("OK, not importing this certificate");
+                    }
+                }
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+alias+"':\n"+getCertInfoStr(cert,"    "), TerminalColor.YELLOW));
                 keyStore.deleteEntry(alias);
             }
         }
@@ -110,8 +131,7 @@ public class CertFileImporter {
         }
         final String reply = isYesMode ? "y" : ConsoleUtils.askUserWithDefault("Do you want to import ALL of the above certificates into DCM? [y/N] ", "N");
         if (!reply.toLowerCase().trim().startsWith("y")) {
-            System.out.println(StringUtils.colorizeForTerminal("OK, not importing", TerminalColor.YELLOW));
-            return;
+            throw new IOException("No certificates to import");
         }
 
         // Convert the KeyStore object to a file in the format needed by the DCM API
@@ -132,7 +152,7 @@ public class CertFileImporter {
         X509Certificate x509 = (X509Certificate) _cert;
         ret += _linePrefix+"Issuer: "+x509.getIssuerX500Principal().getName(X500Principal.RFC1779);
         ret += "\n";
-        ret += _linePrefix+"Subject: "+x509.getSubjectX500Principal().getName(X500Principal.CANONICAL);
+        ret += _linePrefix+"Subject: "+x509.getSubjectX500Principal().getName(X500Principal.RFC2253);
                 return ret;
     }
 
