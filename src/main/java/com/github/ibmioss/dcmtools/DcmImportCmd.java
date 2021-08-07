@@ -86,6 +86,7 @@ public class DcmImportCmd {
                 opts.setCasOnly(true);
             }else if (arg.startsWith("--fetch-from=")) {
                 fetchFroms.add(DcmUserOpts.extractValue(arg));
+                opts.setCasOnly(true);
             }  else if ("--installed-certs".equals(arg)) {
                 files.add(null);
             } else if (arg.startsWith("-")) {
@@ -96,6 +97,10 @@ public class DcmImportCmd {
             }
         }
         try {// TODO: handle multi-file better
+            if(!files.isEmpty() && !fetchFroms.isEmpty()) {
+                System.err.println(StringUtils.colorizeForTerminal("ERROR: Cannot specify file(s) when using '--fetch-from'", TerminalColor.BRIGHT_RED));
+                printUsageAndExit();
+            }
             for (final String fetchFrom : fetchFroms) {
                 files.add(fetchCerts(opts.isYesMode(), fetchFrom));
             }
