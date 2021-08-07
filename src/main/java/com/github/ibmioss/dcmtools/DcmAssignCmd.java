@@ -28,6 +28,26 @@ public class DcmAssignCmd {
         public void setApp(String _app) {
             m_app = _app;
         }
+        String getAppId() throws IOException {
+            if (null != m_app) {
+                return m_app;
+            }
+            if (StringUtils.isEmpty(m_app) && !isYesMode()) {
+                final String resp = ConsoleUtils.askUserOrThrow("Enter application ID: ");
+                return m_app = resp;
+            }
+            throw new IOException("ERROR: Application ID is required");
+        }
+        String getCertId() throws IOException {
+            if (null != m_certId) {
+                return m_certId;
+            }
+            if (StringUtils.isEmpty(m_certId) && !isYesMode()) {
+                final String resp = ConsoleUtils.askUserOrThrow("Enter certificate ID: ");
+                return m_certId = resp;
+            }
+            throw new IOException("ERROR: Certificate ID is required");
+        }
 
     }
 
@@ -54,16 +74,8 @@ public class DcmAssignCmd {
                 printUsageAndExit();
             }
         }
-        if(StringUtils.isEmpty(opts.m_app)) {
-            System.err.println(StringUtils.colorizeForTerminal("ERROR: Application ID not specified", TerminalColor.BRIGHT_RED));
-            printUsageAndExit();
-        }
-        if(StringUtils.isEmpty(opts.m_certId)) {
-            System.err.println(StringUtils.colorizeForTerminal("ERROR: Certificate ID not specified", TerminalColor.BRIGHT_RED));
-            printUsageAndExit();
-        }
         try(DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())){
-            caller.callQycdUpdateCertUsage(opts.m_app, opts.getDcmStore(), opts.m_certId);
+            caller.callQycdUpdateCertUsage(opts.getAppId(), opts.getDcmStore(), opts.getCertId());
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
@@ -77,13 +89,13 @@ public class DcmAssignCmd {
 
     private static void printUsageAndExit() {
         // @formatter:off
-		final String usage = "Usage: dcmassign [options] --app=<id> --cert=<id>\n"
+		final String usage = "Usage: dcmassign [options]\n"
 		                        + "\n"
 		                        + "    Valid options include:\n"
                                 + "        -y:                              Do not ask for confirmation\n"
                                 + "        --app=<id>:                      Specify the application ID to assign certificate\n"
-                                + "                                         usage (required)\n"
-                                + "        --cert=<id>:                     Certificate ID to assign (required)\n"
+                                + "                                         usage\n"
+                                + "        --cert=<id>:                     Certificate ID to assign\n"
                                 + "        --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'\n"
                                 + "                                         to indicate the *SYSTEM store (default)\n"
                                 ;

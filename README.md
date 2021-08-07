@@ -74,13 +74,13 @@ Usage: dcmexport <filename>
         --format=<format>              Format of the output file (jceks, pks, pkcs12).
                                         (default: pkcs12)
 
-Usage: dcmassign [options] --app=<id> --cert=<id>
+Usage: dcmassign [options]
 
     Valid options include:
         -y:                              Do not ask for confirmation
         --app=<id>:                      Specify the application ID to assign certificate
-                                         usage (required)
-        --cert=<id>:                     Certificate ID to assign (required)
+                                         usage
+        --cert=<id>:                     Certificate ID to assign
         --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'
                                          to indicate the *SYSTEM store (default)
                           ca-certificates-mozilla package
