@@ -8,6 +8,7 @@ import java.util.List;
 public class TempFileManager {
 
     private static final List<File> s_filesToCleanup = new LinkedList<File>();
+    public static final String TEMP_KEYSTORE_PWD = StringUtils.generateRandomString(10);
     static {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

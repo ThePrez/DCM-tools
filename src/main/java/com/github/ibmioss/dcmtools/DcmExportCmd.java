@@ -72,7 +72,7 @@ public class DcmExportCmd {
             } else if (arg.startsWith("--source=")) {
                 final String source = DcmUserOpts.extractValue(arg);
                 if ("system".equalsIgnoreCase(source) || "*system".equalsIgnoreCase(source)) {
-                    opts.setDcmStore(CertFileImporter.SYSTEM_DCM_STORE);
+                    opts.setDcmStore(DcmUserOpts.SYSTEM_DCM_STORE);
                 } else {
                     opts.setDcmStore(source);
                 }

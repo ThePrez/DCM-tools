@@ -75,7 +75,7 @@ public class DcmImportCmd {
             } else if (arg.startsWith("--target=")) {
                 final String target = DcmUserOpts.extractValue(arg);
                 if ("system".equalsIgnoreCase(target) || "*system".equalsIgnoreCase(target)) {
-                    opts.setDcmStore(CertFileImporter.SYSTEM_DCM_STORE);
+                    opts.setDcmStore(DcmUserOpts.SYSTEM_DCM_STORE);
                 } else {
                     opts.setDcmStore(target);
                 }

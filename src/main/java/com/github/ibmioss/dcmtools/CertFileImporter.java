@@ -17,6 +17,7 @@ import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -51,9 +52,6 @@ public class CertFileImporter {
         }
     }
 
-    static final String SYSTEM_DCM_STORE = "/QIBM/UserData/ICSS/Cert/Server/DEFAULT.KDB";
-    private static final String TEMP_KEYSTORE_PWD = StringUtils.generateRandomString(10);
-
     private final String m_fileName;
 
     public CertFileImporter(final String _fileName) throws IOException {
@@ -84,12 +82,12 @@ public class CertFileImporter {
         }
 
         // Convert the KeyStore object to a file in the format needed by the DCM API
-        final String dcmImportFile = new KeyStoreLoader(keyStore).saveToDcmApiFormatFile(TEMP_KEYSTORE_PWD);
+        final String dcmImportFile = new KeyStoreLoader(keyStore).saveToDcmApiFormatFile(TempFileManager.TEMP_KEYSTORE_PWD);
         ;
 
         // .... and... call the DCM API to do the import!
         try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
-            caller.callQykmImportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), dcmImportFile, TEMP_KEYSTORE_PWD);
+            caller.callQykmImportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), dcmImportFile, TempFileManager.TEMP_KEYSTORE_PWD);
         }
     }
 
