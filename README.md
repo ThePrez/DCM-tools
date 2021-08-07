@@ -83,7 +83,6 @@ Usage: dcmassign [options]
         --cert=<id>:                     Certificate ID to assign
         --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'
                                          to indicate the *SYSTEM store (default)
-                          ca-certificates-mozilla package
                           
 Usage: dcmexportcert [options] <filename>
 
