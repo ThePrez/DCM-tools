@@ -27,6 +27,9 @@ public class DcmCmd {
             case "export":
                 DcmExportCmd.main(passOnArgs);
                 return;
+            case "assign":
+                DcmAssignCmd.main(passOnArgs);
+                return;
         }
         System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown operation '" + operation + "'", TerminalColor.BRIGHT_RED));
         printUsageAndExit();

@@ -61,7 +61,6 @@ public class CertFileExporter {
         public void setPasswordProtected(final boolean isPasswordProtected) {
             this.isPasswordProtected = isPasswordProtected;
         }
-
     }
 
     private final String m_fileName;
