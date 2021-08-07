@@ -71,7 +71,7 @@ public class DcmImportCmd {
                 opts.setPassword(DcmUserOpts.extractValue(arg));
             } else if ("--password".equals(arg)) {
                 opts.setPasswordProtected(true);
-            } else if (arg.startsWith("--target=")) {
+            } else if (arg.startsWith("--dcm-store=")) {
                 final String target = DcmUserOpts.extractValue(arg);
                 if ("system".equalsIgnoreCase(target) || "*system".equalsIgnoreCase(target)) {
                     opts.setDcmStore(DcmUserOpts.SYSTEM_DCM_STORE);
