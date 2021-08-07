@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -39,7 +40,7 @@ public class KeyStoreLoader {
         m_keyStore = _ks;
     }
 
-    public KeyStoreLoader(final String _file, final String _pw) throws IOException {
+    public KeyStoreLoader(final String _file, final String _pw, final String _label, final boolean _caOnly) throws IOException {
         // Try to load as keystore file
         final String[] keystoreTypes = new String[] { KeyStore.getDefaultType(), "JKS", "pkcs12", "jceks" };
         KeyStore loaded = null;
@@ -62,7 +63,14 @@ public class KeyStoreLoader {
                     keyStore.load(null, null);
                     int counter = 1;
                     for (final Certificate cert : certs) {
-                        final String alias = new File(_file).getName().replaceFirst("[.][^.]+$", "") + "." + (counter++);
+                        if (_caOnly && isCertCa(cert)) {
+                            continue;
+                        }
+                        String aliasBase = StringUtils.isEmpty(_label) ? new File(_file).getName().replaceFirst("[.][^.]+$", "") : _label.trim();
+                        String aliasSuffix = (1==counter)? "":"."+counter;
+                        counter++;
+                        String alias = aliasBase+aliasSuffix;
+                        System.out.println("importing into certificate ID "+alias);
                         keyStore.setCertificateEntry(alias, cert);
                     }
                     loaded = keyStore;
@@ -77,6 +85,13 @@ public class KeyStoreLoader {
         }
         System.out.println(StringUtils.colorizeForTerminal("Successfully loaded certificates", TerminalColor.GREEN));
         m_keyStore = loaded;
+    }
+
+    private boolean isCertCa(Certificate cert) {
+        if (cert instanceof X509Certificate) {
+            return ((X509Certificate) cert).getBasicConstraints() != -1;
+        }
+        return false;
     }
 
     public KeyStore getKeyStore() {

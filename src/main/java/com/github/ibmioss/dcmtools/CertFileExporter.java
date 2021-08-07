@@ -75,7 +75,7 @@ public class CertFileExporter {
         final boolean isYesMode = _opts.isYesMode();
         final File tmpFile = exportDcmStore(_opts.isYesMode(), _opts.getDcmStore(), _opts.getDcmPassword(), null);
 
-        final KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+        final KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD, null, false);
         final KeyStore tempKs = loader.getKeyStore();
         final KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(_opts.outputFileFormat) ? "pkcs12" : _opts.outputFileFormat);
         for (final String alias : Collections.list(tempKs.aliases())) {

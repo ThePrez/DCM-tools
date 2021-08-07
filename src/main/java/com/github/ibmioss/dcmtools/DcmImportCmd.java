@@ -57,7 +57,6 @@ public class DcmImportCmd {
         }
         return destFile.getAbsolutePath();
     }
-
     public static void main(final String... _args) {
         final List<String> files = new LinkedList<String>();
         final List<String> fetchFroms = new LinkedList<String>();
@@ -81,9 +80,13 @@ public class DcmImportCmd {
                 }
             } else if (arg.startsWith("--dcm-password=")) {
                 opts.setDcmPassword(DcmUserOpts.extractValue(arg));
-            } else if (arg.startsWith("--fetch-from=")) {
+            } else if (arg.startsWith("--id=")) {
+                opts.setLabel(DcmUserOpts.extractValue(arg));
+            } else if ("--ca-only".equals(arg)) {
+                opts.setCasOnly(true);
+            }else if (arg.startsWith("--fetch-from=")) {
                 fetchFroms.add(DcmUserOpts.extractValue(arg));
-            } else if ("--installed-certs".equals(arg)) {
+            }  else if ("--installed-certs".equals(arg)) {
                 files.add(null);
             } else if (arg.startsWith("-")) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown option '" + arg + "'", TerminalColor.BRIGHT_RED));
@@ -128,6 +131,8 @@ public class DcmImportCmd {
                                 + "                                       to indicate the *SYSTEM store (default)\n"
                                 + "        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)\n"
                                 + "        --fetch-from=<hostname>[:port] Fetch the certificate from the given hostname/port\n"
+                                + "        --ca-only                      Only import CA Certificates\n"
+                                + "        --id=<label>                   Recommend a certificate ID when imported into DCM\n"
                                 + "        --installed-certs:             import all certificates that are installed into PASE\n"
                                 + "                                       environment, for instance, certificates in the\n"
                                 + "                                       ca-certificates-mozilla package\n"

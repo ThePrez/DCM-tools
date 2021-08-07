@@ -26,6 +26,8 @@ public class CertFileImporter {
     public static class ImportOptions extends DcmUserOpts {
         private boolean isPasswordProtected = false;
         private String password = null;
+        private String label = null;
+        private boolean isCasOnly = false;
 
         public String getPasswordOrNull() throws IOException {
             if (!isPasswordProtected) {
@@ -50,6 +52,22 @@ public class CertFileImporter {
         public void setPasswordProtected(final boolean isPasswordProtected) {
             this.isPasswordProtected = isPasswordProtected;
         }
+
+        public void setLabel(final String _label) {
+            this.label = _label;
+        }
+
+        public String getLabel() {
+            return this.label;
+        }
+
+        public boolean isCasOnly() {
+            return this.isCasOnly;
+        }
+
+        public void setCasOnly(boolean _casOnly) {
+            this.isCasOnly = _casOnly;
+        }
     }
 
     private final String m_fileName;
@@ -62,7 +80,7 @@ public class CertFileImporter {
 
         final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
-        final KeyStore keyStore = new KeyStoreLoader(m_fileName, _opts.getPasswordOrNull()).getKeyStore();
+        final KeyStore keyStore = new KeyStoreLoader(m_fileName, _opts.getPasswordOrNull(), _opts.getLabel(), _opts.isCasOnly()).getKeyStore();
         System.out.println(StringUtils.colorizeForTerminal("Sanity check successful", TerminalColor.GREEN));
 
         // Ask user confirmation

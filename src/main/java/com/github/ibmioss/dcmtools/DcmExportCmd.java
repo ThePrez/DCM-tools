@@ -21,41 +21,6 @@ import com.github.ibmioss.dcmtools.utils.TempFileManager;
  */
 public class DcmExportCmd {
 
-    private static String fetchCerts(final boolean _isYesMode, final String _fetchFrom) throws IOException {
-        final ProcessResult cmdResults = ProcessLauncher.exec("openssl s_client -connect " + _fetchFrom + " -showcerts");
-        if (0 != cmdResults.getExitStatus()) {
-            for (final String errLine : cmdResults.getStderr()) {
-                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
-            }
-            throw new IOException("Error extracting trusted certificates");
-        }
-        boolean isCertificateFetched = false;
-        for (final String line : cmdResults.getStdout()) {
-            if (line.contains("END CERTIFICATE")) {
-                isCertificateFetched = true;
-            }
-            System.out.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
-        }
-        if (!isCertificateFetched) {
-            for (final String errLine : cmdResults.getStderr()) {
-                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
-            }
-            throw new IOException("Error extracting trusted certificates");
-        }
-        final String reply = _isYesMode ? "y" : ConsoleUtils.askUserWithDefault("Do you trust the certificate(s) listed above? [y/N] ", "N");
-        if (!reply.toLowerCase().trim().startsWith("y")) {
-            throw new IOException("User Canceled");
-        }
-        final File destFile = TempFileManager.createTempFile(_fetchFrom + ".pem");
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile, true), "UTF-8"))) {
-            for (final String line : cmdResults.getStdout()) {
-                bw.write(line);
-                bw.write("\n");
-            }
-        }
-        return destFile.getAbsolutePath();
-    }
-
     public static void main(final String... _args) {
         String file = null;
         final ExportOptions opts = new ExportOptions();

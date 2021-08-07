@@ -90,7 +90,7 @@ public class DcmApiCaller implements Closeable {
         runProgram(program, ec);
     }
 
-    public void callQycdRenewCertificate(final String _csr, final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdRenewCertificate(final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QYCDRNWC.PGM";
