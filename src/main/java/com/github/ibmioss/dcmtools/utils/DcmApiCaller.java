@@ -38,10 +38,6 @@ public class DcmApiCaller implements Closeable {
         }
     }
 
-    public void callQycdRetrieveCertUsageInfo(final String _selectionCriteria) {
-        //TODO
-        
-    }
     public void callQycdAddCACertTrust(final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         // Initialize the name of the program to run.
@@ -133,6 +129,11 @@ public class DcmApiCaller implements Closeable {
         program.setProgram(programName, parameterList);
         // Run the program.
         runProgram(program, ec);
+    }
+
+    public void callQycdRetrieveCertUsageInfo(final String _selectionCriteria) {
+        // TODO
+
     }
 
     public void callQycdUpdateCertUsage(final String _appId, final String _certStoreName, final String _certId) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {

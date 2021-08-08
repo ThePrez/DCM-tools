@@ -1,15 +1,6 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-
 import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;

@@ -36,8 +36,9 @@ public class DcmImportCmd {
             if (line.contains("END CERTIFICATE")) {
                 isCertificateFetched = true;
             }
-            if(!_isYesMode)
-            System.out.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
+            if (!_isYesMode) {
+                System.out.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
+            }
         }
         if (!isCertificateFetched) {
             for (final String errLine : cmdResults.getStderr()) {
@@ -58,6 +59,7 @@ public class DcmImportCmd {
         }
         return destFile.getAbsolutePath();
     }
+
     public static void main(final String... _args) {
         final List<String> files = new LinkedList<String>();
         final List<String> fetchFroms = new LinkedList<String>();
@@ -85,14 +87,14 @@ public class DcmImportCmd {
                 opts.setLabel(DcmUserOpts.extractValue(arg));
             } else if ("--ca-only".equals(arg)) {
                 opts.setCasOnly(true);
-            }else if (arg.startsWith("--fetch-from=")) {
-                String fetchFrom=DcmUserOpts.extractValue(arg);
-                if(!fetchFrom.contains(":")) {
-                    fetchFrom +=":443";
+            } else if (arg.startsWith("--fetch-from=")) {
+                String fetchFrom = DcmUserOpts.extractValue(arg);
+                if (!fetchFrom.contains(":")) {
+                    fetchFrom += ":443";
                 }
                 fetchFroms.add(fetchFrom);
                 opts.setCasOnly(true);
-            }  else if ("--installed-certs".equals(arg)) {
+            } else if ("--installed-certs".equals(arg)) {
                 files.add(null);
             } else if (arg.startsWith("-")) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown option '" + arg + "'", TerminalColor.BRIGHT_RED));
@@ -102,7 +104,7 @@ public class DcmImportCmd {
             }
         }
         try {// TODO: handle multi-file better
-            if(!files.isEmpty() && !fetchFroms.isEmpty()) {
+            if (!files.isEmpty() && !fetchFroms.isEmpty()) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Cannot specify file(s) when using '--fetch-from'", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
@@ -113,16 +115,14 @@ public class DcmImportCmd {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
-            for (final String file : files) {
-                final CertFileImporter off = new CertFileImporter(file);
-                off.doImport(opts);
-            }
+            final CertFileImporter off = new CertFileImporter(files);
+            off.doImport(opts);
 
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
             TempFileManager.cleanup();
-            System.exit(-1); // TODO: allow skip on nonfatal
+            System.exit(-1);
         } finally {
             TempFileManager.cleanup();
         }

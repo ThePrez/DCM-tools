@@ -1,30 +1,73 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 
 public class DcmAssignCmd {
+    private static class AssignOptions extends DcmUserOpts {
+
+        private final Set<String> m_apps = new HashSet<String>();
+        private String m_certId;
+
+        public void addApp(final String _app) {
+            m_apps.add(_app);
+        }
+
+        Set<String> getApps() throws IOException {
+            if (m_apps.isEmpty() && !isYesMode()) {
+                final String resp = ConsoleUtils.askUserOrThrow("Enter application ID: ");
+                m_apps.add(resp);
+                return m_apps;
+            }
+            throw new IOException("ERROR: Application ID is required");
+        }
+
+        Set<String> getAppsWithShorthandsProcessed() throws IOException {
+            final Set<String> apps = getApps();
+            final Set<String> ret = new HashSet<String>();
+            for (final String app : apps) {
+                final String[] shorthands = s_shortHands.get(app.toUpperCase());
+                if (null != shorthands) {
+                    for (final String shorthand : shorthands) {
+                        ret.add(shorthand);
+                    }
+                } else {
+                    ret.add(app);
+                }
+            }
+            return ret;
+        }
+
+        String getCertId() throws IOException {
+            if (null != m_certId) {
+                return m_certId;
+            }
+            if (StringUtils.isEmpty(m_certId) && !isYesMode()) {
+                final String resp = ConsoleUtils.askUserOrThrow("Enter certificate ID: ");
+                return m_certId = resp;
+            }
+            throw new IOException("ERROR: Certificate ID is required");
+        }
+
+        public void setCertId(final String _id) {
+            m_certId = _id;
+        }
+
+    }
+
     private static final String[] s_commonApplications;
-//@formatter:on
+    //@formatter:on
     private static final Map<String, String[]> s_shortHands;
+
     static {
 //@formatter:off
         s_commonApplications = new String[] {
@@ -63,70 +106,19 @@ public class DcmAssignCmd {
         s_shortHands = new LinkedHashMap<String, String[]>();
         s_shortHands.put("5250", new String[] { "QIBM_QTV_TELNET_SERVER" });
         s_shortHands.put("TELNET", new String[] { "QIBM_QTV_TELNET_SERVER" });
-        String[] hostServers = new String[] { "QIBM_OS400_QZBS_SVR_CENTRAL", "QIBM_OS400_QZBS_SVR_DATABASE", "QIBM_OS400_QZBS_SVR_DTAQ", "QIBM_OS400_QZBS_SVR_NETPRT", "QIBM_OS400_QZBS_SVR_RMTCMD", "QIBM_OS400_QZBS_SVR_SIGNON", "QIBM_OS400_QZBS_SVR_FILE","QIBM_OS400_QRW_SVR_DDM_DRDA" };
+        final String[] hostServers = new String[] { "QIBM_OS400_QZBS_SVR_CENTRAL", "QIBM_OS400_QZBS_SVR_DATABASE", "QIBM_OS400_QZBS_SVR_DTAQ", "QIBM_OS400_QZBS_SVR_NETPRT", "QIBM_OS400_QZBS_SVR_RMTCMD", "QIBM_OS400_QZBS_SVR_SIGNON", "QIBM_OS400_QZBS_SVR_FILE", "QIBM_OS400_QRW_SVR_DDM_DRDA" };
         s_shortHands.put("HOSTSERVERS", hostServers);
         s_shortHands.put("HOSTSERVER", hostServers);
         s_shortHands.put("HOSTSVR", hostServers);
-        for (String commonApp:s_commonApplications) {
-            if(commonApp.startsWith("QIBM_OS400_QZBS_SVR_")) {
-                s_shortHands.put(commonApp.replace("QIBM_OS400_QZBS_SVR_", ""), new String[] {commonApp});
-            } else if(commonApp.endsWith("_SERVER")) {
-                String shortName = commonApp.replace("_SERVER", "").replaceAll(".*_", "");
-                System.out.println("shortname for '"+commonApp+"' is '"+shortName+"'");
-                s_shortHands.put(shortName, new String[] {commonApp});
+        for (final String commonApp : s_commonApplications) {
+            if (commonApp.startsWith("QIBM_OS400_QZBS_SVR_")) {
+                s_shortHands.put(commonApp.replace("QIBM_OS400_QZBS_SVR_", ""), new String[] { commonApp });
+            } else if (commonApp.endsWith("_SERVER")) {
+                final String shortName = commonApp.replace("_SERVER", "").replaceAll(".*_", "");
+                System.out.println("shortname for '" + commonApp + "' is '" + shortName + "'");
+                s_shortHands.put(shortName, new String[] { commonApp });
             }
         }
-    }
-
-    private static class AssignOptions extends DcmUserOpts {
-
-        private String m_certId;
-        private Set<String> m_apps = new HashSet<String>();
-
-        public void setCertId(String _id) {
-            m_certId = _id;
-        }
-
-        Set<String> getApps() throws IOException {
-            if (m_apps.isEmpty() && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserOrThrow("Enter application ID: ");
-                m_apps.add(resp);
-                return m_apps;
-            }
-            throw new IOException("ERROR: Application ID is required");
-        }
-
-        String getCertId() throws IOException {
-            if (null != m_certId) {
-                return m_certId;
-            }
-            if (StringUtils.isEmpty(m_certId) && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserOrThrow("Enter certificate ID: ");
-                return m_certId = resp;
-            }
-            throw new IOException("ERROR: Certificate ID is required");
-        }
-
-        public void addApp(String _app) {
-            m_apps.add(_app);
-        }
-
-        Set<String> getAppsWithShorthandsProcessed() throws IOException {
-            Set<String> apps = getApps();
-            Set<String> ret = new HashSet<String>();
-            for (String app : apps) {
-                String[] shorthands = s_shortHands.get(app.toUpperCase());
-                if (null != shorthands) {
-                    for (String shorthand : shorthands) {
-                        ret.add(shorthand);
-                    }
-                } else {
-                    ret.add(app);
-                }
-            }
-            return ret;
-        }
-
     }
 
     public static void main(final String... _args) {
@@ -153,7 +145,7 @@ public class DcmAssignCmd {
             }
         }
         try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-            for (String app : opts.getAppsWithShorthandsProcessed()) {
+            for (final String app : opts.getAppsWithShorthandsProcessed()) {
                 System.out.println("Assigning to " + app + "...");
                 caller.callQycdUpdateCertUsage(app, opts.getDcmStore(), opts.getCertId());
             }

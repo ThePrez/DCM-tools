@@ -8,9 +8,11 @@ import java.io.OutputStreamWriter;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
+import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
@@ -31,17 +33,10 @@ public class DcmExportCertCmd {
         private OutputFormat m_format = null;
         private String m_label = null;
 
-        public void setOutputFileFormat(OutputFormat _fmt) {
-            m_format = _fmt;
-        }
-
-        public void setLabel(String _lbl) {
-            m_label = _lbl;
-        }
-
         public OutputFormat getFormat() throws IOException {
-            if (null != m_format)
+            if (null != m_format) {
                 return m_format;
+            }
             if (isYesMode()) {
                 return m_format = OutputFormat.PEM;
             }
@@ -50,15 +45,24 @@ public class DcmExportCertCmd {
 
             try {
                 return m_format = OutputFormat.valueOf(resp.trim().toUpperCase());
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 throw new IOException("ERROR: output format '" + resp + "' is not supported");
             }
         }
 
         public String getLabel() throws IOException {
-            if (null != m_label)
+            if (null != m_label) {
                 return m_label;
+            }
             return m_label = ConsoleUtils.askUserOrThrow("Enter the certificate Id: ");
+        }
+
+        public void setLabel(final String _lbl) {
+            m_label = _lbl;
+        }
+
+        public void setOutputFileFormat(final OutputFormat _fmt) {
+            m_format = _fmt;
         }
 
     }
@@ -83,10 +87,10 @@ public class DcmExportCertCmd {
             } else if (arg.startsWith("--cert=")) {
                 opts.setLabel(DcmUserOpts.extractValue(arg));
             } else if (arg.startsWith("--format=")) {
-                String formatStr = DcmUserOpts.extractValue(arg);
+                final String formatStr = DcmUserOpts.extractValue(arg);
                 try {
                     opts.setOutputFileFormat(ExportCertOptions.OutputFormat.valueOf(formatStr.toUpperCase()));
-                } catch (IllegalArgumentException e) {
+                } catch (final IllegalArgumentException e) {
                     System.err.println("ERROR: output format '" + formatStr + "' is not supported");
                 }
             } else if (arg.startsWith("-")) {
@@ -105,22 +109,23 @@ public class DcmExportCertCmd {
             printUsageAndExit();
         }
         try {
-            File dcmStore = CertFileExporter.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), null);
-            KeyStoreLoader loader = new KeyStoreLoader(dcmStore.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD, opts.getLabel(), false);
-            KeyStore keyStore = loader.getKeyStore();
-            Certificate cert = keyStore.getCertificate(opts.getLabel());
+            final File dcmStore = CertUtils.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), null);
+            final KeyStoreLoader loader = new KeyStoreLoader(Arrays.asList(dcmStore.getAbsolutePath()), TempFileManager.TEMP_KEYSTORE_PWD, opts.getLabel(), false);
+            final KeyStore keyStore = loader.getKeyStore();
+            final Certificate cert = keyStore.getCertificate(opts.getLabel());
 
             if (ExportCertOptions.OutputFormat.PEM == opts.getFormat()) {
                 try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
-                    Encoder encoder = Base64.getEncoder();
-                    String base64 =encoder.encodeToString(cert.getEncoded());
+                    final Encoder encoder = Base64.getEncoder();
+                    final String base64 = encoder.encodeToString(cert.getEncoded());
                     bw.write("-----BEGIN CERTIFICATE-----\n");
                     int charsWritten = 0;
-                    for (char b : base64.toCharArray()) {
+                    for (final char b : base64.toCharArray()) {
                         bw.write(b);
                         charsWritten++;
-                        if (charsWritten % 64 == 0)
+                        if (charsWritten % 64 == 0) {
                             bw.write("\n");
+                        }
                     }
                     bw.write("\n-----END CERTIFICATE-----\n");
                 }
@@ -128,7 +133,7 @@ public class DcmExportCertCmd {
                 if (!(cert instanceof X509Certificate)) {
                     throw new IOException("ERROR: Only x.509 certificates are supported for this operation");
                 }
-                byte[] der = ((X509Certificate) cert).getTBSCertificate();
+                final byte[] der = ((X509Certificate) cert).getTBSCertificate();
                 try (FileOutputStream out = new FileOutputStream(file)) {
                     out.write(der);
                 }

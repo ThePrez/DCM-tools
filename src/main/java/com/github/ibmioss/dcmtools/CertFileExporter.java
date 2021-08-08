@@ -1,7 +1,6 @@
 package com.github.ibmioss.dcmtools;
 
 import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -15,12 +14,9 @@ import java.util.Collections;
 import javax.security.auth.x500.X500Principal;
 
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
-import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
-import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
+import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
-import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -46,6 +42,7 @@ public class CertFileExporter {
                 return password;
             }
         }
+
         public char[] getPasswordOrThrow() throws IOException {
             if (null != password) {
                 return password;
@@ -81,16 +78,11 @@ public class CertFileExporter {
     }
 
     public void doExport(final ExportOptions _opts) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-
-        final boolean isYesMode = _opts.isYesMode();
-        final File tmpFile = exportDcmStore(_opts.isYesMode(), _opts.getDcmStore(), _opts.getDcmPassword(), null);
-
-        final KeyStoreLoader loader = new KeyStoreLoader(tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD, null, false);
-        final KeyStore tempKs = loader.getKeyStore();
+        final DcmChangeTracker changeTracker = new DcmChangeTracker(_opts);
         final KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(_opts.outputFileFormat) ? "pkcs12" : _opts.outputFileFormat);
         destKs.load(null, null);
-        for (final String alias : Collections.list(tempKs.aliases())) {
-            final Certificate cert = tempKs.getCertificate(alias);
+        for (final String alias : Collections.list(changeTracker.getStartingSnapshot().getKeyStore().aliases())) {
+            final Certificate cert = changeTracker.getStartingSnapshot().getKeyStore().getCertificate(alias);
             if (cert instanceof X509Certificate) {
                 System.out.println("    " + alias + ": " + StringUtils.colorizeForTerminal(((X509Certificate) cert).getIssuerX500Principal().getName(X500Principal.RFC1779), TerminalColor.CYAN));
             } else {
@@ -101,20 +93,6 @@ public class CertFileExporter {
         try (FileOutputStream out = new FileOutputStream(m_fileName)) {
             destKs.store(out, _opts.getPasswordOrThrow());
         }
-    }
-
-    public static File exportDcmStore(final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
-        final File dest;
-        if (null == _dest) {
-            dest = TempFileManager.createTempFile();
-            dest.delete();
-        } else {
-            dest = new File(_dest);
-        }
-        try (DcmApiCaller apiCaller = new DcmApiCaller(_isYesMode)) {
-            apiCaller.callQykmExportKeyStore(_dcmStore, _dcmStorePw, dest.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
-        }
-        return dest;
     }
 
 }
