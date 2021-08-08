@@ -267,7 +267,6 @@ public class DcmApiCaller implements Closeable {
         if (!StringUtils.isEmpty(errorMessageId)) {
             throw new IOException("API gave error message " + new MessageLookerUpper(errorMessageId.trim()));
         }
-        System.out.println(StringUtils.colorizeForTerminal("DCM operation successful", TerminalColor.GREEN));
     }
 
 }
