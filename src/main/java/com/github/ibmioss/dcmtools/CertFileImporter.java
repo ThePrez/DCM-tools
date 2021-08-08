@@ -18,6 +18,7 @@ import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
+import com.github.ibmioss.dcmtools.utils.DcmChangeTracker.DcmChange;
 import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
@@ -29,10 +30,14 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
 
 public class CertFileImporter {
     public static class ImportOptions extends DcmUserOpts {
-        private boolean isPasswordProtected = false;
-        private String password = null;
-        private String label = null;
         private boolean isCasOnly = false;
+        private boolean isPasswordProtected = false;
+        private String label = null;
+        private String password = null;
+
+        public String getLabel() {
+            return this.label;
+        }
 
         public String getPasswordOrNull() throws IOException {
             if (!isPasswordProtected) {
@@ -46,8 +51,20 @@ public class CertFileImporter {
             }
         }
 
+        public boolean isCasOnly() {
+            return this.isCasOnly;
+        }
+
         public boolean isPasswordProtected() {
             return isPasswordProtected;
+        }
+
+        public void setCasOnly(final boolean _casOnly) {
+            this.isCasOnly = _casOnly;
+        }
+
+        public void setLabel(final String _label) {
+            this.label = _label;
         }
 
         public void setPassword(final String password) {
@@ -57,29 +74,13 @@ public class CertFileImporter {
         public void setPasswordProtected(final boolean isPasswordProtected) {
             this.isPasswordProtected = isPasswordProtected;
         }
-
-        public void setLabel(final String _label) {
-            this.label = _label;
-        }
-
-        public String getLabel() {
-            return this.label;
-        }
-
-        public boolean isCasOnly() {
-            return this.isCasOnly;
-        }
-
-        public void setCasOnly(boolean _casOnly) {
-            this.isCasOnly = _casOnly;
-        }
     }
 
     private final List<String> m_fileNames;
 
     public CertFileImporter(final List<String> _fileNames) throws IOException {
         m_fileNames = new LinkedList<String>();
-        for(String fileName : _fileNames) {
+        for (final String fileName : _fileNames) {
             m_fileNames.add(null == fileName ? KeyStoreLoader.extractTrustFromInstalledCerts() : fileName);
         }
     }
@@ -95,25 +96,23 @@ public class CertFileImporter {
         final KeyStoreInterrogator dcmChecker = dcmTracker.getStartingSnapshot();
 
         // Check for conflicting aliases, where the certificate is already in the store under a different alias
-        System.out.println("Checking if the certificate is already in DCM....");
         for (final String alias : Collections.list(keyStore.aliases())) {
-            System.out.println("checking for conflicting cert to the one with alias "+alias);
+            System.out.println("checking for conflicting cert to the one with alias " + alias);
             final Certificate cert = keyStore.getCertificate(alias);
-            String conflictingAlias = dcmChecker.getAliasOfCertOrNull(cert);
-            if(null != conflictingAlias && !conflictingAlias.equals(alias)) {
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+conflictingAlias+"':\n"+CertUtils.getCertInfoStr(cert,"    "), TerminalColor.YELLOW));
+            final String conflictingAlias = dcmChecker.getAliasOfCertOrNull(cert);
+            if (null != conflictingAlias) {
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '" + conflictingAlias + "':\n" + CertUtils.getCertInfoStr(cert, "    "), TerminalColor.YELLOW));
                 keyStore.deleteEntry(alias);
             }
         }
-        //check for the case where the alias already exists and we might overwrite it on import
-        System.out.println("Checking if the alias already exists....");
+        // check for the case where the alias already exists and we might overwrite it on import
         for (final String alias : Collections.list(keyStore.aliases())) {
-            System.out.println("checking cert at alias "+alias);
+            System.out.println("checking cert at alias " + alias);
             final Certificate cert = keyStore.getCertificate(alias);
-            Certificate preExistingCert = dcmChecker.getKeyStore().getCertificate(alias);
-            if(null != preExistingCert) {
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate will be replaced with certificate id '"+alias+"':\n"+CertUtils.getCertInfoStr(preExistingCert,"    "), TerminalColor.YELLOW));
-                if(!isYesMode) {
+            final Certificate preExistingCert = dcmChecker.getKeyStore().getCertificate(alias);
+            if (null != preExistingCert) {
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate will be replaced with certificate id '" + alias + "':\n" + CertUtils.getCertInfoStr(preExistingCert, "    "), TerminalColor.YELLOW));
+                if (!isYesMode) {
                     final String reply = ConsoleUtils.askUserWithDefault("Do you want to continue anyway and replace the above certificates in DCM? [y/N] ", "N");
                     if (!reply.toLowerCase().trim().startsWith("y")) {
                         keyStore.deleteEntry(alias);
@@ -122,18 +121,15 @@ public class CertFileImporter {
                 }
             }
         }
-        if(!keyStore.aliases().hasMoreElements()) {
+        if (!keyStore.aliases().hasMoreElements()) {
             throw new IOException("No certificates to import");
         }
         // Ask user confirmation
         System.out.println("The following certificates will be processed:");
         for (final String alias : Collections.list(keyStore.aliases())) {
             final Certificate cert = keyStore.getCertificate(alias);
-            if (cert instanceof X509Certificate) {
-                System.out.println("    " + alias + ": " + StringUtils.colorizeForTerminal(((X509Certificate) cert).getIssuerX500Principal().getName(X500Principal.RFC1779), TerminalColor.CYAN));
-            } else {
-                System.out.println("    " + alias + ": " + StringUtils.colorizeForTerminal("<unknown CN>", TerminalColor.BRIGHT_RED));
-            }
+            System.out.println("    Certificate ID '" + alias + "':");
+            System.out.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(cert, "        "), TerminalColor.CYAN));
         }
         final String reply = isYesMode ? "y" : ConsoleUtils.askUserWithDefault("Do you want to import ALL of the above certificates into DCM? [y/N] ", "N");
         if (!reply.toLowerCase().trim().startsWith("y")) {
@@ -148,6 +144,16 @@ public class CertFileImporter {
         try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
             caller.callQykmImportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), dcmImportFile, TempFileManager.TEMP_KEYSTORE_PWD);
         }
+
+        List<DcmChange> changes = dcmTracker.getChanges();
+        if (changes.isEmpty()) {
+            throw new IOException("No changes were made to the DCM keystore!");
+        }
+        System.out.println("The following changes were made on the DCM keystore:");
+        for (final DcmChange change : dcmTracker.getChanges()) {
+            System.out.println(StringUtils.colorizeForTerminal(change.getFormattedExplanation("    "), TerminalColor.GREEN));
+        }
+
     }
 
 }

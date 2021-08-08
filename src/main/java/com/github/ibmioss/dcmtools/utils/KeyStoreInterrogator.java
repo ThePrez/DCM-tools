@@ -56,6 +56,7 @@ public class KeyStoreInterrogator {
                 }
             }
         }
+        System.out.println("cert has no alias");
         return null;
     }
 

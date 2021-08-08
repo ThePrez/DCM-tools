@@ -2,6 +2,7 @@ package com.github.ibmioss.dcmtools.utils;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -41,18 +42,17 @@ public class CertUtils {
             // System.out.println("DER-encoded information matches");
             return true;
         }
-        // String x1Subject=x1.getSubjectX500Principal().getName().replaceAll(",.*", "");
-        // String x2Subject=x2.getSubjectX500Principal().getName().replaceAll(",.*", "");
-        // if(x1Subject.equals(x2Subject)) {
-        // //System.out.println(StringUtils.colorizeForTerminal("WARNING: existing certificate in DCM may be outdated. You may want to delete it", TerminalColor.YELLOW));
-        // return true;
-        // }
-
         if (x1.toString().equals(x2.toString())) {
             return true;
         }
         return x1.equals(x2);
     }
+    // here for debugging purposes
+    // private static void dumpCertToFile(X509Certificate _cert, String _file) throws IOException {
+    // try(FileWriter fw = new FileWriter(_file)) {
+    // fw.write(""+_cert);
+    // }
+    // }
 
     public static File exportDcmStore(final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
         final File dest;
@@ -70,7 +70,7 @@ public class CertUtils {
 
     public static String getCertInfoStr(final Certificate _cert, final String _linePrefix) {
         if (!(_cert instanceof X509Certificate)) {
-            return "" + _cert;
+            return _linePrefix + "NOT AN X.509 CERT!" + _cert;
         }
         String ret = "";
         final X509Certificate x509 = (X509Certificate) _cert;

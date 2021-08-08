@@ -102,7 +102,6 @@ public class KeyStoreLoader {
                             final String aliasSuffix = (1 == counter) ? "" : "." + counter;
                             counter++;
                             final String alias = aliasBase + aliasSuffix;
-                            System.out.println("importing into certificate ID " + alias);
                             keyStore.setCertificateEntry(alias, cert);
                             isFileLoaded = true;
                         }
