@@ -38,17 +38,28 @@ public class KeyStoreInterrogator {
         X509Certificate x1 = (X509Certificate) _cert1;
         X509Certificate x2 = (X509Certificate) _cert2;
         if (Arrays.equals(x1.getTBSCertificate(), x2.getTBSCertificate())) {
-            System.out.println("TBC cert match");
+            //System.out.println("TBC cert match");
             return true;
         }
         if (Arrays.equals(x1.getSignature(), x2.getSignature())) {
-            System.out.println("signatures match");
+            //System.out.println("signatures match");
             return true;
         }
-//        if (Arrays.equals(x1.getPublicKey().getEncoded(), x2.getPublicKey().getEncoded())) {
-//            System.out.println("public keys match");
-//            return true;
-//        }
+        if (Arrays.equals(x1.getPublicKey().getEncoded(), x2.getPublicKey().getEncoded())) {
+            //System.out.println("public keys match");
+            return true;
+        }
+        if (Arrays.equals(x1.getEncoded(), x2.getEncoded())) {
+            //System.out.println("DER-encoded information matches");
+            return true;
+        }
+        String x1Subject=x1.getSubjectX500Principal().getName().replaceAll(",.*", "");
+        String x2Subject=x2.getSubjectX500Principal().getName().replaceAll(",.*", "");
+        if(x1Subject.equals(x2Subject)) {
+            //System.out.println(StringUtils.colorizeForTerminal("WARNING: existing certificate in DCM may be outdated. You may want to delete it", TerminalColor.YELLOW));
+            return true;
+        }
+        
         if (x1.toString().equals(x2.toString())) {
             return true;
         }
@@ -67,7 +78,6 @@ public class KeyStoreInterrogator {
         for (String alias : Collections.list(m_keyStore.aliases())) {
             Certificate certInKeyStore = m_keyStore.getCertificate(alias);
             if (areCertsEqual(certInKeyStore, _cert)) {
-                // the .equals() can return true even with mismatched signatures....
                 if (certInKeyStore instanceof X509Certificate && _cert instanceof X509Certificate) {
                     if (Arrays.equals(((X509Certificate) _cert).getSignature(), ((X509Certificate) _cert).getSignature())) {
                         return alias;

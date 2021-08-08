@@ -36,6 +36,7 @@ public class DcmImportCmd {
             if (line.contains("END CERTIFICATE")) {
                 isCertificateFetched = true;
             }
+            if(!_isYesMode)
             System.out.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
         }
         if (!isCertificateFetched) {
