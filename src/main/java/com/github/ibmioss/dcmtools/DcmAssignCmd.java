@@ -5,6 +5,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
@@ -16,28 +22,80 @@ import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 
 public class DcmAssignCmd {
+    private static final String[] s_commonApplications;
+//@formatter:on
+    private static final Map<String, String[]> s_shortHands;
+    static {
+//@formatter:off
+        s_commonApplications = new String[] {
+                "QIBM_OS400_QZBS_SVR_CENTRAL",
+                "QIBM_OS400_QZBS_SVR_DATABASE",
+                "QIBM_OS400_QZBS_SVR_DTAQ",
+                "QIBM_OS400_QZBS_SVR_NETPRT",
+                "QIBM_OS400_QZBS_SVR_RMTCMD",
+                "QIBM_OS400_QZBS_SVR_SIGNON",
+                "QIBM_OS400_QZBS_SVR_FILE",
+                "QIBM_OS400_QRW_SVR_DDM_DRDA",
+                "QIBM_OS400_QRW_CLT_DDM_DRDA",
+                "QIBM_QTV_TELNET_SERVER",
+                "QIBM_QTV_TELNET_CLIENT",
+                "QIBM_QCST_CLUSTER_SECURITY",
+                "QIBM_OS400_QZBS_SVR",
+                "QIBM_GLD_DIRSRV_SERVER",
+                "QIBM_GLD_DIRSRV_PUBLISHING",
+                "QIBM_GLD_DIRSRV_CLIENT",
+                "QIBM_QTOK_VPN_KEYMGR",
+                "QIBM_QSY_EIM_CLIENT",
+                "QIBM_QSM_SERVICE",
+                "QIBM_QP0A_FILESYS_CLIENT",
+                "QIBM_QJO_RMT_JRN_TGT",
+                "QIBM_QJO_RMT_JRN_SRC",
+                "QIBM_QTMS_SMTP_SERVER",
+                "QIBM_QTMS_SMTP_CLIENT",
+                "QIBM_QTMF_FTP_SERVER",
+                "QIBM_QTMF_FTP_CLIENT",
+                "QIBM_QTMM_POP_SERVER",
+                "QIBM_DIRECTORY_SERVER_QUSRDIR",
+                "QIBM_QZHB_HTTP_SERVER_MONITOR",
+                "QIBM_QSVR_OBJC_SERVER",
+                "QIBM_QSVR_OBJC_CLIENT"};
+//@formatter:on
+        s_shortHands = new LinkedHashMap<String, String[]>();
+        s_shortHands.put("5250", new String[] { "QIBM_QTV_TELNET_SERVER" });
+        s_shortHands.put("TELNET", new String[] { "QIBM_QTV_TELNET_SERVER" });
+        String[] hostServers = new String[] { "QIBM_OS400_QZBS_SVR_CENTRAL", "QIBM_OS400_QZBS_SVR_DATABASE", "QIBM_OS400_QZBS_SVR_DTAQ", "QIBM_OS400_QZBS_SVR_NETPRT", "QIBM_OS400_QZBS_SVR_RMTCMD", "QIBM_OS400_QZBS_SVR_SIGNON", "QIBM_OS400_QZBS_SVR_FILE","QIBM_OS400_QRW_SVR_DDM_DRDA" };
+        s_shortHands.put("HOSTSERVERS", hostServers);
+        s_shortHands.put("HOSTSERVER", hostServers);
+        s_shortHands.put("HOSTSVR", hostServers);
+        for (String commonApp:s_commonApplications) {
+            if(commonApp.startsWith("QIBM_OS400_QZBS_SVR_")) {
+                s_shortHands.put(commonApp.replace("QIBM_OS400_QZBS_SVR_", ""), new String[] {commonApp});
+            } else if(commonApp.endsWith("_SERVER")) {
+                String shortName = commonApp.replace("_SERVER", "").replaceAll(".*_", "");
+                System.out.println("shortname for '"+commonApp+"' is '"+shortName+"'");
+                s_shortHands.put(shortName, new String[] {commonApp});
+            }
+        }
+    }
+
     private static class AssignOptions extends DcmUserOpts {
 
         private String m_certId;
-        private String m_app;
+        private Set<String> m_apps = new HashSet<String>();
 
         public void setCertId(String _id) {
             m_certId = _id;
         }
 
-        public void setApp(String _app) {
-            m_app = _app;
-        }
-        String getAppId() throws IOException {
-            if (null != m_app) {
-                return m_app;
-            }
-            if (StringUtils.isEmpty(m_app) && !isYesMode()) {
+        Set<String> getApps() throws IOException {
+            if (m_apps.isEmpty() && !isYesMode()) {
                 final String resp = ConsoleUtils.askUserOrThrow("Enter application ID: ");
-                return m_app = resp;
+                m_apps.add(resp);
+                return m_apps;
             }
             throw new IOException("ERROR: Application ID is required");
         }
+
         String getCertId() throws IOException {
             if (null != m_certId) {
                 return m_certId;
@@ -47,6 +105,26 @@ public class DcmAssignCmd {
                 return m_certId = resp;
             }
             throw new IOException("ERROR: Certificate ID is required");
+        }
+
+        public void addApp(String _app) {
+            m_apps.add(_app);
+        }
+
+        Set<String> getAppsWithShorthandsProcessed() throws IOException {
+            Set<String> apps = getApps();
+            Set<String> ret = new HashSet<String>();
+            for (String app : apps) {
+                String[] shorthands = s_shortHands.get(app.toUpperCase());
+                if (null != shorthands) {
+                    for (String shorthand : shorthands) {
+                        ret.add(shorthand);
+                    }
+                } else {
+                    ret.add(app);
+                }
+            }
+            return ret;
         }
 
     }
@@ -60,8 +138,6 @@ public class DcmAssignCmd {
                 printUsageAndExit();
             } else if (arg.startsWith("--cert=")) {
                 opts.setCertId(DcmUserOpts.extractValue(arg));
-            } else if (arg.startsWith("--app=")) {
-                opts.setApp(DcmUserOpts.extractValue(arg));
             } else if (arg.startsWith("--dcm-store=")) {
                 final String dcmStore = DcmUserOpts.extractValue(arg);
                 if ("system".equalsIgnoreCase(dcmStore) || "*system".equalsIgnoreCase(dcmStore)) {
@@ -69,13 +145,18 @@ public class DcmAssignCmd {
                 } else {
                     opts.setDcmStore(dcmStore);
                 }
-            } else {
+            } else if (arg.startsWith("-")) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown option '" + arg + "'", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
+            } else {
+                opts.addApp(arg);
             }
         }
-        try(DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())){
-            caller.callQycdUpdateCertUsage(opts.getAppId(), opts.getDcmStore(), opts.getCertId());
+        try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
+            for (String app : opts.getAppsWithShorthandsProcessed()) {
+                System.out.println("Assigning to " + app + "...");
+                caller.callQycdUpdateCertUsage(app, opts.getDcmStore(), opts.getCertId());
+            }
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
@@ -89,12 +170,10 @@ public class DcmAssignCmd {
 
     private static void printUsageAndExit() {
         // @formatter:off
-		final String usage = "Usage: dcmassign [options]\n"
+		final String usage = "Usage: dcmassign [options] <application_id>...\n"
 		                        + "\n"
 		                        + "    Valid options include:\n"
                                 + "        -y:                              Do not ask for confirmation\n"
-                                + "        --app=<id>:                      Specify the application ID to assign certificate\n"
-                                + "                                         usage\n"
                                 + "        --cert=<id>:                     Certificate ID to assign\n"
                                 + "        --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'\n"
                                 + "                                         to indicate the *SYSTEM store (default)\n"
