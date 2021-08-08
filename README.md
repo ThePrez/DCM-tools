@@ -64,6 +64,7 @@ Usage: dcmimport  [options] [[filename] ..]
                                        environment, for instance, certificates in the
                                        ca-certificates-mozilla package
 
+
 Usage: dcmexport <filename>
 
     Valid options include:
@@ -75,16 +76,7 @@ Usage: dcmexport <filename>
         --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
         --format=<format>              Format of the output file (jceks, pks, pkcs12).
                                         (default: pkcs12)
-
-Usage: dcmassign [options]
-
-    Valid options include:
-        -y:                              Do not ask for confirmation
-        --app=<id>:                      Specify the application ID to assign certificate
-                                         usage
-        --cert=<id>:                     Certificate ID to assign
-        --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'
-                                         to indicate the *SYSTEM store (default)
+                                        
                           
 Usage: dcmexportcert [options] <filename>
 
@@ -97,6 +89,34 @@ Usage: dcmexportcert [options] <filename>
         --format=<format>:             Format of the output file (PEM/DER).
                                         (default: PEM)
 
+
+Usage: dcmassign [options] <application_id>...
+
+    Valid options include:
+        -y:                              Do not ask for confirmation
+        --cert=<id>:                     Certificate ID to assign
+        --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'
+                                         to indicate the *SYSTEM store (default)
+
+    For application id, specify the id as defined in DCM, or a 'shorthand' identifier.
+    Valid shorthand identifiers include:
+        5250
+        TELNET
+        HOSTSERVERS
+        HOSTSERVER
+        HOSTSVR
+        CENTRAL
+        DATABASE
+        DTAQ
+        NETPRT
+        RMTCMD
+        SIGNON
+        FILE
+        DIRSRV
+        SMTP
+        FTP
+        POP
+        OBJC
 ```
 
 ## Usage examples
