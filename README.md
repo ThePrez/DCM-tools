@@ -16,7 +16,9 @@ It can be used to import files of type:
 - Human-readable DER-encoded certificate bundles
 - JKS trust stores
 - JCEKS trust stores
-- PKCS#12 bundles
+- PKCS#12 or PFX bundles
+- A directory containing any of the above
+- A `.zip` file containing any of the above
 
 It can also be used to fetch certificates from a remote host and import to DCM.
 
