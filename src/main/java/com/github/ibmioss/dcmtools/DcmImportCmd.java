@@ -85,7 +85,11 @@ public class DcmImportCmd {
             } else if ("--ca-only".equals(arg)) {
                 opts.setCasOnly(true);
             }else if (arg.startsWith("--fetch-from=")) {
-                fetchFroms.add(DcmUserOpts.extractValue(arg));
+                String fetchFrom=DcmUserOpts.extractValue(arg);
+                if(!fetchFrom.contains(":")) {
+                    fetchFrom +=":443";
+                }
+                fetchFroms.add(fetchFrom);
                 opts.setCasOnly(true);
             }  else if ("--installed-certs".equals(arg)) {
                 files.add(null);

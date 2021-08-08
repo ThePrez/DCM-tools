@@ -106,14 +106,12 @@ public class CertFileImporter {
             if(null != preExistingCert) {
                 System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate will be replaced with certificate id '"+alias+"':\n"+getCertInfoStr(preExistingCert,"    "), TerminalColor.YELLOW));
                 if(!isYesMode) {
-                    final String reply = ConsoleUtils.askUserWithDefault("Do you want to continue aanyway and replace the above certificates in DCM? [y/N] ", "N");
+                    final String reply = ConsoleUtils.askUserWithDefault("Do you want to continue anyway and replace the above certificates in DCM? [y/N] ", "N");
                     if (!reply.toLowerCase().trim().startsWith("y")) {
                         keyStore.deleteEntry(alias);
                         System.out.println("OK, not importing this certificate");
                     }
                 }
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '"+alias+"':\n"+getCertInfoStr(cert,"    "), TerminalColor.YELLOW));
-                keyStore.deleteEntry(alias);
             }
         }
         if(!keyStore.aliases().hasMoreElements()) {
@@ -152,7 +150,7 @@ public class CertFileImporter {
         X509Certificate x509 = (X509Certificate) _cert;
         ret += _linePrefix+"Issuer: "+x509.getIssuerX500Principal().getName(X500Principal.RFC1779);
         ret += "\n";
-        ret += _linePrefix+"Subject: "+x509.getSubjectX500Principal().getName(X500Principal.RFC2253);
+        ret += _linePrefix+"Subject: "+x509.getSubjectX500Principal().getName(X500Principal.RFC1779);
                 return ret;
     }
 
