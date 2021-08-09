@@ -101,7 +101,7 @@ public class CertFileImporter {
             final Certificate cert = keyStore.getCertificate(alias);
             final String conflictingAlias = dcmChecker.getAliasOfCertOrNull(cert);
             if (null != conflictingAlias) {
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '" + conflictingAlias + "':\n" + CertUtils.getCertInfoStr(cert, "    "), TerminalColor.YELLOW));
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate already exists in the keystore with certificate id '" + conflictingAlias + "'. Certificate will not be imported:\n" + CertUtils.getCertInfoStr(cert, "    "), TerminalColor.YELLOW));
                 keyStore.deleteEntry(alias);
             }
         }
@@ -111,14 +111,7 @@ public class CertFileImporter {
             final Certificate cert = keyStore.getCertificate(alias);
             final Certificate preExistingCert = dcmChecker.getKeyStore().getCertificate(alias);
             if (null != preExistingCert) {
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following certificate will be replaced with certificate id '" + alias + "':\n" + CertUtils.getCertInfoStr(preExistingCert, "    "), TerminalColor.YELLOW));
-                if (!isYesMode) {
-                    final String reply = ConsoleUtils.askUserWithDefault("Do you want to continue anyway and replace the above certificates in DCM? [y/N] ", "N");
-                    if (!reply.toLowerCase().trim().startsWith("y")) {
-                        keyStore.deleteEntry(alias);
-                        System.out.println("OK, not importing this certificate");
-                    }
-                }
+                System.out.println(StringUtils.colorizeForTerminal("WARNING: The following already exists with certificate id '" + alias + "' and will not be imported. Perhaps you mean to use the 'dcmrenew' tool instead?:\n" + CertUtils.getCertInfoStr(preExistingCert, "    "), TerminalColor.YELLOW));
             }
         }
         if (!keyStore.aliases().hasMoreElements()) {

@@ -29,7 +29,7 @@ public class DcmChangeTracker {
 
         @Override
         public String getFormattedExplanation(final String _linePrefix) {
-            String ret = String.format("%sThe following certificate was added with certificate with ID '%s':\n", m_label);
+            String ret = String.format("%sThe following certificate was added with certificate with ID '%s':\n", _linePrefix, m_label);
             ret += CertUtils.getCertInfoStr(m_newCert, _linePrefix + "        ");
             return ret;
         }
@@ -70,8 +70,8 @@ public class DcmChangeTracker {
         @Override
         public String getFormattedExplanation(final String _linePrefix) {
             String ret = String.format("%sThe certificate with ID '%s' has been updated.\n", m_label);
-            ret += String.format("%s    The old certificate is:\n", _linePrefix, CertUtils.getCertInfoStr(m_oldCert, _linePrefix + "        "));
-            ret += String.format("%s    The new certificate is:\n", _linePrefix, CertUtils.getCertInfoStr(m_oldCert, _linePrefix + "        "));
+            ret += String.format("%s    The old certificate is:\n%s", _linePrefix, CertUtils.getCertInfoStr(m_oldCert, _linePrefix + "        "));
+            ret += String.format("%s    The new certificate is:\n%s", _linePrefix, CertUtils.getCertInfoStr(m_oldCert, _linePrefix + "        "));
             return ret;
         }
 
