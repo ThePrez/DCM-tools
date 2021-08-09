@@ -35,6 +35,11 @@ Used to export a single certificate from a DCM keystore to file
 Used to assign a certificate to a registered application
 
 
+### `dcmrenew`
+
+Used to renew a certificate, given a new certificate file
+
+
 # Have feedback or want to contribute?
 Feel free to [open an issue](https://github.com/ThePrez/DCM-tools/issues/new/choose) with any questions, problems, or other comments. If you'd like to contribute to the project, see [CONTRIBUTING.md](https://github.com/ThePrez/DCM-tools/blob/main/CONTRIBUTING.md) for more information on how to get started. 
 
@@ -117,6 +122,13 @@ Usage: dcmassign [options] <application_id>...
         FTP
         POP
         OBJC
+        
+ 
+Usage: dcmrenew [[filename] ..]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+
 ```
 
 ## Usage examples
