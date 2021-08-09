@@ -162,14 +162,20 @@ public class DcmAssignCmd {
 
     private static void printUsageAndExit() {
         // @formatter:off
-		final String usage = "Usage: dcmassign [options] <application_id>...\n"
+		String usage = "Usage: dcmassign [options] <application_id>...\n"
 		                        + "\n"
 		                        + "    Valid options include:\n"
                                 + "        -y:                              Do not ask for confirmation\n"
                                 + "        --cert=<id>:                     Certificate ID to assign\n"
                                 + "        --dcm-store=<system/filename>:   Specify the DCM certificate store, or specify 'system'\n"
                                 + "                                         to indicate the *SYSTEM store (default)\n"
+                                + "\n"
+                                + "    For application id, specify the id as defined in DCM, or a 'shorthand' identifier.\n"
+                                + "    Valid shorthand identifiers include:\n"
                                 ;
+		for(String s : s_shortHands.keySet()) {
+		    usage += "        "+s+"\n";
+		}
 		// @formatter:on
         System.err.println(usage);
         System.exit(-1);
