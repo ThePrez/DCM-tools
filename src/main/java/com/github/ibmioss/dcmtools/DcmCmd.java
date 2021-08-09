@@ -33,6 +33,9 @@ public class DcmCmd {
             case "assign":
                 DcmAssignCmd.main(passOnArgs);
                 return;
+            case "renew":
+                DcmRenewCmd.main(passOnArgs);
+                return;
         }
         System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown operation '" + operation + "'", TerminalColor.BRIGHT_RED));
         printUsageAndExit();

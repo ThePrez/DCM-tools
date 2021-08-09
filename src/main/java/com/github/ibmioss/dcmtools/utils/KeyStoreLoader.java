@@ -87,7 +87,6 @@ public class KeyStoreLoader {
                     break;
                 }
             }
-
             // That didn't work! Try to load as a certificate file
             if (!isFileLoaded) {
                 try (FileInputStream fis = new FileInputStream(file)) {
