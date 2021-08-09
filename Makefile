@@ -19,7 +19,7 @@ clean:
 	/QOpenSys/pkgs/bin/yum install maven
 
 /QOpenSys/pkgs/lib/jvm/openjdk-11/bin/java:
-	/QOpenSys/pkgs/bin/yum install openjdk=11
+	/QOpenSys/pkgs/bin/yum install openjdk-11
 
 /QOpenSys/pkgs/bin/trust:
 	/QOpenSys/pkgs/bin/yum install /QOpenSys/pkgs/bin/trust
