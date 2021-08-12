@@ -104,7 +104,7 @@ public class DcmApiCaller implements Closeable {
                 // 4 4 Binary (4) Length of certificate path and file name
                 new AS400Bin4(),
                 // Char (*) Certificate path and file name
-                new AS400Text(1024) });
+                new AS400Text(_file.length()) }); //TODO
 
         // Set up the parms
         final ProgramParameter[] parameterList = new ProgramParameter[14];

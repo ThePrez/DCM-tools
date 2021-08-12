@@ -33,11 +33,11 @@ public class CertRenewer {
         }
     }
 
-    public void doRenew(final ImportOptions _opts) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+    public void doRenew(final DcmUserOpts _opts) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
 
         final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
-        final KeyStore keyStore = new KeyStoreLoader(m_fileNames, null, null, _opts.isCasOnly()).getKeyStore();
+        final KeyStore keyStore = new KeyStoreLoader(m_fileNames, null, null, false).getKeyStore();
         
         for(String alias :Collections.list( keyStore.aliases())) {
             renewCert(keyStore.getCertificate(alias));

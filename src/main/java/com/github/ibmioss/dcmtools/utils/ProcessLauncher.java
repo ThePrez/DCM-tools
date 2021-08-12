@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+
 public class ProcessLauncher {
 
     public static class ProcessResult {
@@ -31,6 +33,15 @@ public class ProcessLauncher {
 
         public List<String> getStdout() {
             return m_stdout;
+        }
+
+        public void prettyPrint() {
+            for(String stdout:m_stdout) {
+                System.out.println(StringUtils.colorizeForTerminal(stdout, TerminalColor.GREEN));
+            }
+            for(String stderr:m_stderr) {
+                System.out.println(StringUtils.colorizeForTerminal(stderr, TerminalColor.BRIGHT_RED));
+            }
         }
 
     }
