@@ -40,6 +40,11 @@ Used to assign a certificate to a registered application
 Used to renew a certificate, given a new certificate file
 
 
+### `dcmrenewacme`
+
+Renew an ACME-protocol certificate (for instance, LetsEncrypt) and update DCMA
+
+
 # Have feedback or want to contribute?
 Feel free to [open an issue](https://github.com/ThePrez/DCM-tools/issues/new/choose) with any questions, problems, or other comments. If you'd like to contribute to the project, see [CONTRIBUTING.md](https://github.com/ThePrez/DCM-tools/blob/main/CONTRIBUTING.md) for more information on how to get started. 
 
@@ -125,6 +130,12 @@ Usage: dcmassign [options] <application_id>...
         
  
 Usage: dcmrenew [[filename] ..]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+
+
+Usage: dcmrenewacme [[domain] ..]
 
     Valid options include:
         -y:                            Do not ask for confirmation
