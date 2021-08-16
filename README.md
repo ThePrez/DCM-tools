@@ -1,7 +1,7 @@
 # DCM Tools for IBM i
 Command-line tools for working with Digital Certificate Manager (DCM) on IBM i.
 
-Currently still under development and without a published release. Proceed at your own risk. I'm not kidding.
+Currently still under development and without complete testing. Proceed at your own risk. I'm not kidding.
 
 # Current features
 
