@@ -51,11 +51,21 @@ public class DcmImportCmd {
             throw new IOException("User Canceled");
         }
         final File destFile = TempFileManager.createTempFile(_fetchFrom + ".pem");
+        boolean isCertLine = false;
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(destFile, true), "UTF-8"))) {
             for (final String line : cmdResults.getStdout()) {
-                bw.write(line);
-                bw.write("\n");
+                if (line.contains("BEGIN CERTIFICATE")) {
+                    isCertLine = true;
+                }
+                if (isCertLine) {
+                    bw.write(line);
+                    bw.write("\n");
+                }
+                if (line.contains("END CERTIFICATE")) {
+                    isCertLine = false;
+                }
             }
+            bw.write("\n");
         }
         return destFile.getAbsolutePath();
     }
@@ -93,7 +103,6 @@ public class DcmImportCmd {
                     fetchFrom += ":443";
                 }
                 fetchFroms.add(fetchFrom);
-                opts.setCasOnly(true);
             } else if ("--installed-certs".equals(arg)) {
                 files.add(null);
             } else if (arg.startsWith("-")) {
