@@ -76,7 +76,7 @@
     </plugins>
   </build>
 
-  <name>IBM i DCM Import Tool</name>
+  <name>IBM i DCM Tools</name>
   <dependencies>
     <dependency>
       <groupId>net.sf.jt400</groupId>
