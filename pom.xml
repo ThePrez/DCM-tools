@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>jesseg.ibmi.opensource</groupId>
-  <artifactId>dcm_importer</artifactId>
+  <artifactId>dcmtools</artifactId>
   <packaging>jar</packaging>
   <version>1.0</version>
 
