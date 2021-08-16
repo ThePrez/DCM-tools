@@ -10,12 +10,12 @@ BuildRequires: maven
 BuildRequires: openjdk-11
 BuildRequires: coreutils-gnu
 BuildRequires: make-gnu
+BuildRequires: p11-kit-trust
 Requires: bash
 Requires: coreutils-gnu
 Requires: /QOpenSys/pkgs/bin/trust
 
 Source0: https://github.com/ThePrez/DCM-tools/archive/refs/tags/v%{version}.tar.gz
-
 
 %description
 Utilities for working with Digital Certificate Manager (DCM) for IBM i.
