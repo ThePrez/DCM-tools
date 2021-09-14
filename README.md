@@ -1,6 +1,8 @@
 # DCM Tools for IBM i
 Command-line tools for working with Digital Certificate Manager (DCM) on IBM i.
 
+Can be used in conjunction with [CertBot](https://ibmi-oss-docs.readthedocs.io/en/latest/certbot.html) to automate the acquisition/assignment/renewal of LetsEncrypt certificates
+
 Currently still under development and without complete testing. Proceed at your own risk. I'm not kidding.
 
 # Current features
@@ -26,7 +28,7 @@ It can also be used to fetch certificates from a remote host and import to DCM.
 
 Used to export the entire DCM keystore to file
 
-### `dcmexport`
+### `dcmexportcert`
 
 Used to export a single certificate from a DCM keystore to file
 
@@ -37,7 +39,7 @@ Used to assign a certificate to a registered application
 
 ### `dcmrenew`
 
-Used to renew a certificate, given a new certificate file
+Used to renew a certificate, given a new certificate file, for instance, a new LetsEncrypt certificate from CertBot [CertBot](https://ibmi-oss-docs.readthedocs.io/en/latest/certbot.html)
 
 
 # Have feedback or want to contribute?
@@ -146,4 +148,9 @@ dcmimport --installed-certs --target=system --dcm-password=abc123 -y
 Import the Java certificates from JV1's Java 8
 ```
 dcmimport /QOpenSys/QIBM/ProdData/JavaVM/jdk80/64bit/jre/lib/security/cacerts
+```
+Renew a LetsEncrypt certificate
+```
+/opt/certbot/bin/certbot renew
+/etc/letsencrypt/live/mydomain.dom/fullchain.pem
 ```
