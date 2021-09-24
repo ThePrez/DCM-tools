@@ -41,6 +41,9 @@ Used to assign a certificate to a registered application
 
 Used to renew a certificate, given a new certificate file, for instance, a new LetsEncrypt certificate from CertBot [CertBot](https://ibmi-oss-docs.readthedocs.io/en/latest/certbot.html)
 
+# Future features
+
+Check out the issues board for this project to see things that may be future enhancements to this toolset
 
 # Have feedback or want to contribute?
 Feel free to [open an issue](https://github.com/ThePrez/DCM-tools/issues/new/choose) with any questions, problems, or other comments. If you'd like to contribute to the project, see [CONTRIBUTING.md](https://github.com/ThePrez/DCM-tools/blob/main/CONTRIBUTING.md) for more information on how to get started. 
