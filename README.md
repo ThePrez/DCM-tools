@@ -155,5 +155,5 @@ dcmimport /QOpenSys/QIBM/ProdData/JavaVM/jdk80/64bit/jre/lib/security/cacerts
 Renew a LetsEncrypt certificate
 ```
 /opt/certbot/bin/certbot renew
-/etc/letsencrypt/live/mydomain.dom/fullchain.pem
+dcmrenew /etc/letsencrypt/live/mydomain.dom/fullchain.pem
 ```
