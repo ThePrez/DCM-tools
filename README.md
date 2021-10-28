@@ -56,6 +56,8 @@ In any event, we're glad to have you aboard in any capacity, whether as a user, 
 yum install https://github.com/ThePrez/DCM-tools/releases/download/v0.0.1/dcmtools-0.0.1-0.ibmi7.4.ppc64.rpm
 ```
 Or, to build from source, clone this repository and run `make install`
+Note: yum install might fail when the IBM i job is not set to US English language settings. It is recommended to change the job
+settings CHGJOB LANGID(ENU) CNTRYID(US) CCSID(37) prior to starting the install process.
 
 # Basic usage
 
