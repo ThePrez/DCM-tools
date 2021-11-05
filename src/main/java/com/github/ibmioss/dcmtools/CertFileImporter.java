@@ -85,15 +85,14 @@ public class CertFileImporter {
         }
     }
 
-    public void doImport(final ImportOptions _opts) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+    public void doImport(final ImportOptions _opts, final DcmChangeTracker _tracker) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
 
         final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
         final KeyStore keyStore = new KeyStoreLoader(m_fileNames, _opts.getPasswordOrNull(), _opts.getLabel(), _opts.isCasOnly()).getKeyStore();
         System.out.println(StringUtils.colorizeForTerminal("Sanity check successful", TerminalColor.GREEN));
 
-        final DcmChangeTracker dcmTracker = new DcmChangeTracker(_opts);
-        final KeyStoreInterrogator dcmChecker = dcmTracker.getStartingSnapshot();
+        final KeyStoreInterrogator dcmChecker = _tracker.getStartingSnapshot();
 
         // Check for conflicting aliases, where the certificate is already in the store under a different alias
         for (final String alias : Collections.list(keyStore.aliases())) {
@@ -137,16 +136,5 @@ public class CertFileImporter {
         try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
             caller.callQykmImportKeyStore(_opts.getDcmStore(), _opts.getDcmPassword(), dcmImportFile, TempFileManager.TEMP_KEYSTORE_PWD);
         }
-
-        List<DcmChange> changes = dcmTracker.getChanges();
-        if (changes.isEmpty()) {
-            throw new IOException("No changes were made to the DCM keystore!");
-        }
-        System.out.println("The following changes were made on the DCM keystore:");
-        for (final DcmChange change : dcmTracker.getChanges()) {
-            System.out.println(StringUtils.colorizeForTerminal(change.getFormattedExplanation("    "), TerminalColor.GREEN));
-        }
-
     }
-
 }

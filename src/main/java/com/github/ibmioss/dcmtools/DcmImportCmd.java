@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
+import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
@@ -124,9 +125,11 @@ public class DcmImportCmd {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
-            final CertFileImporter off = new CertFileImporter(files);
-            off.doImport(opts);
 
+            final DcmChangeTracker dcmTracker = new DcmChangeTracker(opts);
+            final CertFileImporter off = new CertFileImporter(files);
+            off.doImport(opts, dcmTracker);
+            dcmTracker.printChanges();
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));

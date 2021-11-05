@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.DcmUserOpts;
+import com.github.ibmioss.dcmtools.utils.DcmChangeTracker.DcmChange;
+import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -93,7 +95,7 @@ public class DcmChangeTracker {
         m_opts = _opts;
     }
 
-    public List<DcmChange> getChanges() throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public synchronized List<DcmChange> getChanges() throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         final List<DcmChange> ret = new LinkedList<DcmChange>();
 
         // Get the current snapshot
@@ -131,5 +133,16 @@ public class DcmChangeTracker {
 
     public KeyStoreInterrogator getStartingSnapshot() {
         return m_startingSnapshot;
+    }
+
+    public synchronized void printChanges() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+        List<DcmChange> changes = getChanges();
+        if (changes.isEmpty()) {
+            throw new IOException("No changes were made to the DCM keystore!");
+        }
+        System.out.println("The following changes were made on the DCM keystore:");
+        for (final DcmChange change : changes) {
+            System.out.println(StringUtils.colorizeForTerminal(change.getFormattedExplanation("    "), TerminalColor.GREEN));
+        }
     }
 }
