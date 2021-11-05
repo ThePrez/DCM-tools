@@ -57,7 +57,7 @@ public class DcmChangePwCmd {
             }
         }
         try {
-            File tmpFileOld = TempFileManager.createTempFile()
+            File tmpFileOld = TempFileManager.createTempFile();
             FileUtils.delete(tmpFileOld);
             CertUtils.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFileOld.getAbsolutePath());
             // At this point, we've exported to a temp file with the temp file password. Import that into a new temp DCM store

@@ -1,21 +1,16 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collections;
 
-import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
-import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
+import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
+import com.github.ibmioss.dcmtools.utils.CertUtils;
+import com.github.ibmioss.dcmtools.utils.FileUtils;
+import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
@@ -25,21 +20,21 @@ import com.github.ibmioss.dcmtools.utils.TempFileManager;
  *
  * @author Jesse Gorzinski
  */
-public class DcmCreateCmd {
+public class DcmShowCmd {
+
     public static void main(final String... _args) {
         final DcmUserOpts opts = new DcmUserOpts();
-        opts.setDcmStore(null);
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--dcm-store=")) {
-                final String target = DcmUserOpts.extractValue(arg);
-                if ("system".equalsIgnoreCase(target) || "*system".equalsIgnoreCase(target)) {
+                final String source = DcmUserOpts.extractValue(arg);
+                if ("system".equalsIgnoreCase(source) || "*system".equalsIgnoreCase(source)) {
                     opts.setDcmStore(DcmUserOpts.SYSTEM_DCM_STORE);
                 } else {
-                    opts.setDcmStore(new File(target).getAbsolutePath());
+                    opts.setDcmStore(source);
                 }
             } else if (arg.startsWith("--dcm-password=")) {
                 opts.setDcmPassword(DcmUserOpts.extractValue(arg));
@@ -49,27 +44,23 @@ public class DcmCreateCmd {
             }
         }
         try {
-            String dcmStore = opts.getDcmStore().trim();
-            if (StringUtils.isEmpty(dcmStore)) {
-                System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
-                printUsageAndExit();
+            File tmpFile= TempFileManager.createTempFile();
+            FileUtils.delete(tmpFile);
+            CertUtils.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath());
+            KeyStore fileKs = null;
+            try (FileInputStream fis = new FileInputStream(tmpFile)) {
+                fileKs = KeyStore.getInstance("pkcs12");
+                fileKs.load(fis, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
             }
-            System.out.println("Creating DCM store at " + dcmStore);
-            KeyStore ks = KeyStore.getInstance("PKCS12");
-            ks.load(null, opts.getDcmPassword().toCharArray());
-            final File tmpFile = TempFileManager.createTempFile();
-            try (final FileOutputStream fos = new FileOutputStream(tmpFile)) {
-                ks.store(fos, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
+            for(String label: Collections.list(fileKs.aliases())) {
+                System.out.println("label '"+label+"'");
+                System.out.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(fileKs.getCertificate(label), "    "), TerminalColor.CYAN));
             }
-            try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-                caller.callQykmImportKeyStore(opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
-            }
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
-            e.printStackTrace();
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            e.printStackTrace();
             TempFileManager.cleanup();
-            System.exit(-1);
+            System.exit(-1); // TODO: allow skip on nonfatal
         } finally {
             TempFileManager.cleanup();
         }
@@ -78,7 +69,7 @@ public class DcmCreateCmd {
 
     private static void printUsageAndExit() {
         // @formatter:off
-		final String usage = "Usage: dcmcreate  [options]\n"
+		final String usage = "Usage: dcmexport [options]\n"
 		                        + "\n"
 		                        + "    Valid options include:\n"
                                 + "        -y:                            Do not ask for confirmation\n"

@@ -9,6 +9,7 @@ import java.security.KeyStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -73,10 +74,15 @@ public class CertUtils {
             return _linePrefix + "NOT AN X.509 CERT!" + _cert;
         }
         String ret = "";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd @ HH:mm:ssZ");
         final X509Certificate x509 = (X509Certificate) _cert;
         ret += _linePrefix + "Issuer: " + x509.getIssuerX500Principal().getName(X500Principal.RFC1779);
         ret += "\n";
         ret += _linePrefix + "Subject: " + x509.getSubjectX500Principal().getName(X500Principal.RFC1779);
+        ret += "\n";
+        ret += _linePrefix + "Valid From: " + simpleDateFormat.format(x509.getNotBefore());
+        ret += "\n";
+        ret += _linePrefix + "Valid Until: " + simpleDateFormat.format(x509.getNotAfter());
         ret += "\n";
         ret += _linePrefix + "Is CA? " + isCA(_cert);
         return ret;
