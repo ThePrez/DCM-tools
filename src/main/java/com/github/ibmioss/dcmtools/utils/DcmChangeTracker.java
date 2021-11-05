@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.DcmUserOpts;
-import com.github.ibmioss.dcmtools.utils.DcmChangeTracker.DcmChange;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
@@ -136,7 +135,7 @@ public class DcmChangeTracker {
     }
 
     public synchronized void printChanges() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
-        List<DcmChange> changes = getChanges();
+        final List<DcmChange> changes = getChanges();
         if (changes.isEmpty()) {
             throw new IOException("No changes were made to the DCM keystore!");
         }

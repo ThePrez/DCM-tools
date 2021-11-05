@@ -7,19 +7,15 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.security.auth.x500.X500Principal;
-
 import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
-import com.github.ibmioss.dcmtools.utils.DcmChangeTracker.DcmChange;
 import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
@@ -85,7 +81,8 @@ public class CertFileImporter {
             m_fileNames.add(null == fileName ? KeyStoreLoader.extractTrustFromInstalledCerts() : fileName);
         }
     }
-    public CertFileImporter(String... _fileNames) throws IOException {
+
+    public CertFileImporter(final String... _fileNames) throws IOException {
         this(Arrays.asList(_fileNames));
     }
 

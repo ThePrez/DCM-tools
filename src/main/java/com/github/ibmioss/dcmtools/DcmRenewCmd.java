@@ -1,17 +1,9 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
@@ -22,7 +14,6 @@ import com.github.ibmioss.dcmtools.utils.TempFileManager;
  * @author Jesse Gorzinski
  */
 public class DcmRenewCmd {
-
 
     public static void main(final String... _args) {
         final List<String> files = new LinkedList<String>();

@@ -1,17 +1,8 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
-import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
 import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
@@ -47,8 +38,8 @@ public class DcmRenewAcmeCmd {
                 printUsageAndExit();
             }
             final List<String> files = new LinkedList<String>();
-            for (String domain : domains) {
-                ProcessResult result = ProcessLauncher.exec("/QOpenSys/pkgs/bin/acme-client -F " + domain);
+            for (final String domain : domains) {
+                final ProcessResult result = ProcessLauncher.exec("/QOpenSys/pkgs/bin/acme-client -F " + domain);
                 result.prettyPrint();
                 if (0 == result.getExitStatus()) {
                     files.add("");

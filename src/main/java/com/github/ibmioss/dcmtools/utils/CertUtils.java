@@ -2,7 +2,6 @@ package com.github.ibmioss.dcmtools.utils;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -74,7 +73,7 @@ public class CertUtils {
             return _linePrefix + "NOT AN X.509 CERT!" + _cert;
         }
         String ret = "";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd @ HH:mm:ssZ");
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd @ HH:mm:ssZ");
         final X509Certificate x509 = (X509Certificate) _cert;
         ret += _linePrefix + "Issuer: " + x509.getIssuerX500Principal().getName(X500Principal.RFC1779);
         ret += "\n";

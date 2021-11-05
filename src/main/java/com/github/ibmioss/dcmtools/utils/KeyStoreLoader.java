@@ -65,7 +65,7 @@ public class KeyStoreLoader {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(null, null);
         boolean isKeyStoreLoaded = false;
-        
+
         for (final String file : filesToLoad) {
             boolean isFileLoaded = false;
 

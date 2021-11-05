@@ -173,7 +173,7 @@ public class DcmAssignCmd {
                                 + "    For application id, specify the id as defined in DCM, or a 'shorthand' identifier.\n"
                                 + "    Valid shorthand identifiers include:\n"
                                 ;
-		for(String s : s_shortHands.keySet()) {
+		for(final String s : s_shortHands.keySet()) {
 		    usage += "        "+s+"\n";
 		}
 		// @formatter:on

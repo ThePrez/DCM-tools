@@ -10,12 +10,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.ibm.as400.access.AS400SecurityException;
@@ -38,16 +36,15 @@ public class CertRenewer {
         final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
         final KeyStore keyStore = new KeyStoreLoader(m_fileNames, null, null, false).getKeyStore();
-        
-        for(String alias :Collections.list( keyStore.aliases())) {
+
+        for (final String alias : Collections.list(keyStore.aliases())) {
             renewCert(keyStore.getCertificate(alias));
         }
     }
 
-    private void renewCert(Certificate _cert) throws CertificateEncodingException, FileNotFoundException, IOException {
-        try(FileOutputStream fos = new FileOutputStream(TempFileManager.createTempFile())) {
+    private void renewCert(final Certificate _cert) throws CertificateEncodingException, FileNotFoundException, IOException {
+        try (FileOutputStream fos = new FileOutputStream(TempFileManager.createTempFile())) {
             fos.write(_cert.getEncoded());
         }
     }
 }
-

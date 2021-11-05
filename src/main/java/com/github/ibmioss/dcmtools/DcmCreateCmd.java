@@ -1,21 +1,10 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.security.KeyStore;
-import java.util.LinkedList;
-import java.util.List;
 
-import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
-import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
@@ -43,7 +32,7 @@ public class DcmCreateCmd {
                 }
             } else if (arg.startsWith("--dcm-password=")) {
                 opts.setDcmPassword(DcmUserOpts.extractValue(arg));
-            } else if(arg.startsWith("-")){
+            } else if (arg.startsWith("-")) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown option '" + arg + "'", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             } else {
@@ -59,13 +48,13 @@ public class DcmCreateCmd {
             }
         }
         try {
-            String dcmStore = opts.getDcmStore().trim();
+            final String dcmStore = opts.getDcmStore().trim();
             if (StringUtils.isEmpty(dcmStore)) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
             System.out.println("Creating DCM store at " + dcmStore);
-            KeyStore ks = KeyStore.getInstance("PKCS12");
+            final KeyStore ks = KeyStore.getInstance("PKCS12");
             ks.load(null, opts.getDcmPassword().toCharArray());
             final File tmpFile = TempFileManager.createTempFile();
             try (final FileOutputStream fos = new FileOutputStream(tmpFile)) {
@@ -76,7 +65,6 @@ public class DcmCreateCmd {
             }
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
-            e.printStackTrace();
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
             TempFileManager.cleanup();
             System.exit(-1);

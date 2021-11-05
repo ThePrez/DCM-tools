@@ -42,6 +42,7 @@ public class DcmUserOpts {
             return dcmStore = new File(dcmStoreResp).getAbsolutePath();
         }
     }
+
     String getDcmStoreNonInteractive() {
         return dcmStore;
     }
@@ -55,7 +56,7 @@ public class DcmUserOpts {
     }
 
     public void setDcmStore(final String _dcmStore) {
-        this.dcmStore = null == _dcmStore ? null: new File(_dcmStore).getAbsolutePath();
+        this.dcmStore = null == _dcmStore ? null : new File(_dcmStore).getAbsolutePath();
     }
 
     public void setYesMode(final boolean isYesMode) {

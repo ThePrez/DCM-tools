@@ -1,26 +1,16 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
-import java.util.LinkedList;
-import java.util.List;
 
-import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
-import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
-import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.FileUtils;
 import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
-import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
@@ -33,16 +23,8 @@ import com.github.ibmioss.dcmtools.utils.TempFileManager;
 public class DcmRenameCertCmd {
     private static class CertRenameOpts extends DcmUserOpts {
 
-        private String m_oldLabel;
         private String m_newLabel;
-
-        public void setOldLabel(String _oldLabel) {
-            m_oldLabel = _oldLabel;
-        }
-
-        public void setNewLabel(String _newLabel) {
-            m_newLabel = _newLabel;
-        }
+        private String m_oldLabel;
 
         public String getNewLabel() throws IOException {
 
@@ -54,6 +36,7 @@ public class DcmRenameCertCmd {
             }
             throw new IOException("ERROR: new label is required");
         }
+
         public String getOldLabel() throws IOException {
 
             if (StringUtils.isNonEmpty(m_oldLabel)) {
@@ -62,7 +45,15 @@ public class DcmRenameCertCmd {
             if (!isYesMode()) {
                 return m_oldLabel = ConsoleUtils.askUserOrThrow("Enter old label: ");
             }
-           throw new IOException("ERROR: old label is required");
+            throw new IOException("ERROR: old label is required");
+        }
+
+        public void setNewLabel(final String _newLabel) {
+            m_newLabel = _newLabel;
+        }
+
+        public void setOldLabel(final String _oldLabel) {
+            m_oldLabel = _oldLabel;
         }
     }
 
@@ -92,20 +83,20 @@ public class DcmRenameCertCmd {
             }
         }
         try {
-            DcmChangeTracker tracker = new DcmChangeTracker(opts);
-            KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
-            KeyStore origKs = startingSnap.getKeyStore();
+            final DcmChangeTracker tracker = new DcmChangeTracker(opts);
+            final KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
+            final KeyStore origKs = startingSnap.getKeyStore();
             final String oldLabel = opts.getOldLabel();
-            Certificate cert = origKs.getCertificate(oldLabel);
+            final Certificate cert = origKs.getCertificate(oldLabel);
             origKs.deleteEntry(oldLabel);
             origKs.setCertificateEntry(opts.getNewLabel(), cert);
             // At this point, we have a KeyStore object with the change made. Now, let's write it to a temp file
-            File tmpFile = TempFileManager.createTempFile();
-            try(FileOutputStream fos = new FileOutputStream(tmpFile)) {
+            final File tmpFile = TempFileManager.createTempFile();
+            try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
                 origKs.store(fos, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
             }
             // Next, need to save it to .kdb format
-            File tmpFileKdb = TempFileManager.createTempFile();
+            final File tmpFileKdb = TempFileManager.createTempFile();
             FileUtils.delete(tmpFileKdb);
             try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
                 caller.callQykmImportKeyStore(tmpFileKdb.getAbsolutePath(), new String(opts.getDcmPassword()), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
@@ -117,7 +108,6 @@ public class DcmRenameCertCmd {
 
             System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
         } catch (final Exception e) {
-            e.printStackTrace();
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
             TempFileManager.cleanup();
             System.exit(-1);

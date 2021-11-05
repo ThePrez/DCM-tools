@@ -3,14 +3,10 @@ package com.github.ibmioss.dcmtools;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.Collections;
 
-import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
 import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.FileUtils;
-import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
-import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
@@ -44,7 +40,7 @@ public class DcmShowCmd {
             }
         }
         try {
-            File tmpFile= TempFileManager.createTempFile();
+            final File tmpFile = TempFileManager.createTempFile();
             FileUtils.delete(tmpFile);
             CertUtils.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath());
             KeyStore fileKs = null;
@@ -52,13 +48,12 @@ public class DcmShowCmd {
                 fileKs = KeyStore.getInstance("pkcs12");
                 fileKs.load(fis, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
             }
-            for(String label: Collections.list(fileKs.aliases())) {
-                System.out.println("label '"+label+"'");
+            for (final String label : Collections.list(fileKs.aliases())) {
+                System.out.println("label '" + label + "'");
                 System.out.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(fileKs.getCertificate(label), "    "), TerminalColor.CYAN));
             }
         } catch (final Exception e) {
             System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
-            e.printStackTrace();
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
         } finally {
