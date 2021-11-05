@@ -43,9 +43,19 @@ public class DcmCreateCmd {
                 }
             } else if (arg.startsWith("--dcm-password=")) {
                 opts.setDcmPassword(DcmUserOpts.extractValue(arg));
-            } else {
+            } else if(arg.startsWith("-")){
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Unknown option '" + arg + "'", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
+            } else {
+                if (StringUtils.isNonEmpty(opts.getDcmStoreNonInteractive())) {
+                    System.err.println(StringUtils.colorizeForTerminal("ERROR: More than one file specified", TerminalColor.BRIGHT_RED));
+                    printUsageAndExit();
+                }
+                if ("system".equalsIgnoreCase(arg) || "*system".equalsIgnoreCase(arg)) {
+                    opts.setDcmStore(DcmUserOpts.SYSTEM_DCM_STORE);
+                } else {
+                    opts.setDcmStore(new File(arg).getAbsolutePath());
+                }
             }
         }
         try {
