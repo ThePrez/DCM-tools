@@ -62,7 +62,7 @@ public class KeyStoreLoader {
         }
 
         final String[] keystoreTypes = new String[] { KeyStore.getDefaultType(), "JKS", "PKCS12", "JCEKS", "PKCS12V3" };
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(null, null);
         boolean isKeyStoreLoaded = false;
         
