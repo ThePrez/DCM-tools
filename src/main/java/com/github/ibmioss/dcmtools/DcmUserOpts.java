@@ -1,11 +1,12 @@
 package com.github.ibmioss.dcmtools;
 
+import java.io.File;
 import java.io.IOException;
 
 import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.StringUtils;
 
-public abstract class DcmUserOpts {
+public class DcmUserOpts {
     public static final String SYSTEM_DCM_STORE = "/QIBM/UserData/ICSS/Cert/Server/DEFAULT.KDB";
 
     static String extractValue(final String _str) {
@@ -38,8 +39,11 @@ public abstract class DcmUserOpts {
         if ("*SYSTEM".equals(dcmStoreResp.trim().toUpperCase()) || "SYSTEM".equals(dcmStoreResp.trim().toUpperCase())) {
             return dcmStore = SYSTEM_DCM_STORE;
         } else {
-            return dcmStore = dcmStoreResp;
+            return dcmStore = new File(dcmStoreResp).getAbsolutePath();
         }
+    }
+    String getDcmStoreNonInteractive() {
+        return dcmStore;
     }
 
     public boolean isYesMode() {
@@ -51,7 +55,7 @@ public abstract class DcmUserOpts {
     }
 
     public void setDcmStore(final String _dcmStore) {
-        this.dcmStore = _dcmStore;
+        this.dcmStore = null == _dcmStore ? null: new File(_dcmStore).getAbsolutePath();
     }
 
     public void setYesMode(final boolean isYesMode) {

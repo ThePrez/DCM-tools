@@ -64,7 +64,8 @@ public class KeyStoreLoader {
         final String[] keystoreTypes = new String[] { KeyStore.getDefaultType(), "JKS", "PKCS12", "JCEKS", "PKCS12V3" };
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null, null);
-
+        boolean isKeyStoreLoaded = false;
+        
         for (final String file : filesToLoad) {
             boolean isFileLoaded = false;
 
@@ -84,6 +85,7 @@ public class KeyStoreLoader {
                 if (null != fileKs) {
                     keyStore = CertUtils.mergeKeyStore(keyStore, fileKs);
                     isFileLoaded = true;
+                    isKeyStoreLoaded = true;
                     break;
                 }
             }
@@ -113,7 +115,7 @@ public class KeyStoreLoader {
             }
         }
         // Out of ideas
-        if (!keyStore.aliases().hasMoreElements()) {
+        if (!keyStore.aliases().hasMoreElements() && !isKeyStoreLoaded) {
             throw new IOException("Failure loading certificates");
         }
         // System.out.println(StringUtils.colorizeForTerminal("Successfully loaded certificates", TerminalColor.GREEN));

@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -83,6 +84,9 @@ public class CertFileImporter {
         for (final String fileName : _fileNames) {
             m_fileNames.add(null == fileName ? KeyStoreLoader.extractTrustFromInstalledCerts() : fileName);
         }
+    }
+    public CertFileImporter(String... _fileNames) throws IOException {
+        this(Arrays.asList(_fileNames));
     }
 
     public void doImport(final ImportOptions _opts, final DcmChangeTracker _tracker) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {

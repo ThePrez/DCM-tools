@@ -1,0 +1,4 @@
+#!/QOpenSys/pkgs/bin/bash
+export LC_ALL=EN_US.UTF-8
+: ${JAVA_HOME=/QOpenSys/QIBM/ProdData/JavaVM/jdk80/64bit}
+exec $JAVA_HOME/bin/java -cp $(dirname $0)/../lib/dcmtools/dcmtools.jar com.github.ibmioss.dcmtools.DcmChangePwCmd $*
