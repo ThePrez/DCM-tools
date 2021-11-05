@@ -30,53 +30,36 @@ import com.github.ibmioss.dcmtools.utils.TempFileManager;
  *
  * @author Jesse Gorzinski
  */
-public class DcmRenameCertCmd {
-    private static class CertRenameOpts extends DcmUserOpts {
+public class DcmRemoveCertCmd {
+    private static class CertRemoveOpts extends DcmUserOpts {
 
-        private String m_oldLabel;
-        private String m_newLabel;
+        private String m_label=null;
 
-        public void setOldLabel(String _oldLabel) {
-            m_oldLabel = _oldLabel;
+        public void setLabel(String _label) {
+            m_label = _label;
         }
 
-        public void setNewLabel(String _newLabel) {
-            m_newLabel = _newLabel;
-        }
+        public String getLabel() throws IOException {
 
-        public String getNewLabel() throws IOException {
-
-            if (StringUtils.isNonEmpty(m_newLabel)) {
-                return m_newLabel;
+            if (StringUtils.isNonEmpty(m_label)) {
+                return m_label;
             }
             if (!isYesMode()) {
-                return m_newLabel = ConsoleUtils.askUserOrThrow("Enter new label: ");
+                return m_label = ConsoleUtils.askUserOrThrow("Enter label: ");
             }
-            throw new IOException("ERROR: new label is required");
-        }
-        public String getOldLabel() throws IOException {
-
-            if (StringUtils.isNonEmpty(m_oldLabel)) {
-                return m_oldLabel;
-            }
-            if (!isYesMode()) {
-                return m_oldLabel = ConsoleUtils.askUserOrThrow("Enter old label: ");
-            }
-           throw new IOException("ERROR: old label is required");
+           throw new IOException("ERROR: label is required");
         }
     }
 
     public static void main(final String... _args) {
-        final CertRenameOpts opts = new CertRenameOpts();
+        final CertRemoveOpts opts = new CertRemoveOpts();
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
-            } else if (arg.startsWith("--old-label=")) {
-                opts.setOldLabel(DcmUserOpts.extractValue(arg));
-            } else if (arg.startsWith("--new-label=")) {
-                opts.setNewLabel(DcmUserOpts.extractValue(arg));
+            } else if (arg.startsWith("--label=")) {
+                opts.setLabel(DcmUserOpts.extractValue(arg));
             } else if (arg.startsWith("--dcm-store=")) {
                 final String target = DcmUserOpts.extractValue(arg);
                 if ("system".equalsIgnoreCase(target) || "*system".equalsIgnoreCase(target)) {
@@ -95,10 +78,8 @@ public class DcmRenameCertCmd {
             DcmChangeTracker tracker = new DcmChangeTracker(opts);
             KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
             KeyStore origKs = startingSnap.getKeyStore();
-            final String oldLabel = opts.getOldLabel();
-            Certificate cert = origKs.getCertificate(oldLabel);
-            origKs.deleteEntry(oldLabel);
-            origKs.setCertificateEntry(opts.getNewLabel(), cert);
+            origKs.deleteEntry(opts.getLabel());
+            
             // At this point, we have a KeyStore object with the change made. Now, let's write it to a temp file
             File tmpFile = TempFileManager.createTempFile();
             try(FileOutputStream fos = new FileOutputStream(tmpFile)) {
@@ -129,15 +110,14 @@ public class DcmRenameCertCmd {
 
     private static void printUsageAndExit() {
         // @formatter:off
-        final String usage = "Usage: dcmrenamecert  [options]\n"
+        final String usage = "Usage: dcmemovecert  [options]\n"
                 + "\n"
                 + "    Valid options include:\n"
                 + "        -y:                            Do not ask for confirmation\n"
                 + "        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'\n"
                 + "                                       to indicate the *SYSTEM store (default)\n"
                 + "        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)\n"
-                + "        --old-label=<label>:           Label of the certificate to rename\n"
-                + "        --new-label=<label>:           Label of the certificate to rename\n"
+                + "        --label=<label>:               Label of the certificate to remove\n"
                 ;
 		// @formatter:on
         System.err.println(usage);
