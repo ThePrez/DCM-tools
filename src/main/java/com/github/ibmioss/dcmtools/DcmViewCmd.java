@@ -64,7 +64,7 @@ public class DcmViewCmd {
 
     private static void printUsageAndExit() {
         // @formatter:off
-		final String usage = "Usage: dcmexport [options]\n"
+		final String usage = "Usage: dcmview [options]\n"
 		                        + "\n"
 		                        + "    Valid options include:\n"
                                 + "        -y:                            Do not ask for confirmation\n"

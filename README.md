@@ -74,7 +74,7 @@ In any event, we're glad to have you aboard in any capacity, whether as a user, 
 # Installation
 
 ```
-yum install https://github.com/ThePrez/DCM-tools/releases/download/v0.0.1/dcmtools-0.0.1-0.ibmi7.4.ppc64.rpm
+yum install https://github.com/ThePrez/DCM-tools/releases/download/v0.1.0/dcmtools-0.1.0-0.ibmi7.2.ppc64.rpm
 ```
 Or, to build from source, clone this repository and run `make install`
 

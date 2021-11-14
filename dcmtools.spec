@@ -1,10 +1,10 @@
 %undefine _disable_source_fetch
 Name: dcmtools
-Version: 0.0.1
+Version: 0.1.0
 Release: 0
 License: Apache-2.0
 Summary: Utilities for working with Digital Certificate Manager (DCM) for IBM i.
-Url: https://github.com/ThePrez/dcmimport
+Url: https://github.com/ThePrez/DCM-tools
 
 BuildRequires: maven
 BuildRequires: openjdk-11
@@ -36,5 +36,13 @@ INSTALL_ROOT=%{buildroot} gmake -e install
 %{_libdir}/%{name}
 
 %changelog
+* Sun Nov 14 2021 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.1.0
+- feature: new 'dcmcreate' command
+- feature: new 'dcmview' command
+- feature: new 'dcmchangepw' command
+- feature: new 'dcmrenamecert' command
+- feature: new 'dcmremovecert' command
+- feature: provide binary install for IBM i 7.2
+
 * Wed Jul 28 2021 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.0.1
 - initial RPM release
