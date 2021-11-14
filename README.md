@@ -36,10 +36,31 @@ Used to export a single certificate from a DCM keystore to file
 
 Used to assign a certificate to a registered application
 
-
 ### `dcmrenew`
 
 Used to renew a certificate, given a new certificate file, for instance, a new LetsEncrypt certificate from CertBot [CertBot](https://ibmi-oss-docs.readthedocs.io/en/latest/certbot.html)
+
+### `dcmview`
+
+View contents of a certificate store
+
+### `dcmremovecert`
+
+Remove a certificate from a certificate store
+
+### `dcmrenamecert`
+
+Rename a certificate in a certificate store
+
+### `dcmcreate`
+
+Create a certificate store
+
+### `dcmchangepw`
+
+Change a certificate store password
+
+
 
 # Future features
 
@@ -136,6 +157,51 @@ Usage: dcmrenew [[filename] ..]
 
     Valid options include:
         -y:                            Do not ask for confirmation
+
+Usage: dcmview [options]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'
+                                       to indicate the *SYSTEM store (default)
+        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
+
+Usage: dcmemovecert  [options]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'
+                                       to indicate the *SYSTEM store (default)
+        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
+        --label=<label>:               Label of the certificate to remove
+
+Usage: dcmrenamecert  [options]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'
+                                       to indicate the *SYSTEM store (default)
+        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
+        --old-label=<label>:           Label of the certificate to rename
+        --new-label=<label>:           Label of the certificate to rename
+
+Usage: dcmcreate  [options]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'
+                                       to indicate the *SYSTEM store (default)
+        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
+
+Usage: dcmchangepw  [options]
+
+    Valid options include:
+        -y:                            Do not ask for confirmation
+        --dcm-store=<system/filename>: Specify the target keystore, or specify 'system'
+                                       to indicate the *SYSTEM store (default)
+        --dcm-password=<password>:     Provide the DCM keystore password (not recommended)
+        --password[=password]:         Provide new password (not recommended)
+
 
 ```
 
