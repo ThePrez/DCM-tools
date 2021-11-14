@@ -16,7 +16,7 @@ import com.github.ibmioss.dcmtools.utils.TempFileManager;
  *
  * @author Jesse Gorzinski
  */
-public class DcmShowCmd {
+public class DcmViewCmd {
 
     public static void main(final String... _args) {
         final DcmUserOpts opts = new DcmUserOpts();
