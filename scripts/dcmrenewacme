@@ -1,5 +1,10 @@
 #!/QOpenSys/pkgs/bin/bash
 exec echo "not implemented"
 export LC_ALL=EN_US.UTF-8
+if [[ -z "$SSH_TTY" ]]; then
+  unset TERM
+else
+  export TERM=xterm
+fi
 : ${JAVA_HOME=/QOpenSys/QIBM/ProdData/JavaVM/jdk80/64bit}
 exec $JAVA_HOME/bin/java -cp $(dirname $0)/../lib/dcmtools/dcmtools.jar com.github.ibmioss.dcmtools.DcmRenewAcmeCmd $*
