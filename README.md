@@ -71,6 +71,9 @@ Feel free to [open an issue](https://github.com/ThePrez/DCM-tools/issues/new/cho
 
 In any event, we're glad to have you aboard in any capacity, whether as a user, spectator, or contributor!
 
+# IBM i release requirements
+The ability to "Renew" a certificate (with the `dcmrenew` tool) requires IBM i 7.4.
+
 # Installation
 
 ```
