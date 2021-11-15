@@ -43,6 +43,7 @@ INSTALL_ROOT=%{buildroot} gmake -e install
 - feature: new 'dcmrenamecert' command
 - feature: new 'dcmremovecert' command
 - feature: provide binary install for IBM i 7.2
+- bugfix: IBM i password is not hidden
 
 * Wed Jul 28 2021 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.0.1
 - initial RPM release
