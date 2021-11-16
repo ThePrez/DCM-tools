@@ -77,7 +77,7 @@ The ability to "Renew" a certificate (with the `dcmrenew` tool) requires IBM i 7
 # Installation
 
 ```
-yum install https://github.com/ThePrez/DCM-tools/releases/download/v0.1.0/dcmtools-0.1.0-0.ibmi7.2.ppc64.rpm
+yum install https://github.com/ThePrez/DCM-tools/releases/download/v0.1.1/dcmtools-0.1.1-0.ibmi7.2.ppc64.rpm
 ```
 Or, to build from source, clone this repository and run `make install`
 
