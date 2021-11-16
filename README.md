@@ -226,3 +226,8 @@ Renew a LetsEncrypt certificate
 /opt/certbot/bin/certbot renew
 dcmrenew /etc/letsencrypt/live/mydomain.dom/fullchain.pem
 ```
+
+# Testimonials
+> "I wrote some code. It seems to work. ¯\\_(ツ)_/¯"
+>
+> &nbsp; --[@ThePrez](https://github.com/ThePrez/), creator of DCM Tools
