@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
@@ -115,7 +116,7 @@ public class DcmAssignCmd {
                 s_shortHands.put(commonApp.replace("QIBM_OS400_QZBS_SVR_", ""), new String[] { commonApp });
             } else if (commonApp.endsWith("_SERVER")) {
                 final String shortName = commonApp.replace("_SERVER", "").replaceAll(".*_", "");
-                System.out.println("shortname for '" + commonApp + "' is '" + shortName + "'");
+                // System.out.println("shortname for '" + commonApp + "' is '" + shortName + "'");
                 s_shortHands.put(shortName, new String[] { commonApp });
             }
         }
@@ -126,6 +127,8 @@ public class DcmAssignCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--cert=")) {
@@ -144,14 +147,16 @@ public class DcmAssignCmd {
                 opts.addApp(arg);
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
             for (final String app : opts.getAppsWithShorthandsProcessed()) {
-                System.out.println("Assigning to " + app + "...");
-                caller.callQycdUpdateCertUsage(app, opts.getDcmStore(), opts.getCertId());
+                logger.println("Assigning to " + app + "...");
+                caller.callQycdUpdateCertUsage(logger, app, opts.getDcmStore(), opts.getCertId());
             }
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
         } finally {

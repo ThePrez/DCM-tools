@@ -10,6 +10,7 @@ import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.FileUtils;
 import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
@@ -45,6 +46,8 @@ public class DcmRemoveCertCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--label=")) {
@@ -63,9 +66,10 @@ public class DcmRemoveCertCmd {
                 printUsageAndExit();
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
-            final DcmChangeTracker tracker = new DcmChangeTracker(opts);
-            final KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
+            final DcmChangeTracker tracker = new DcmChangeTracker(logger, opts);
+            final KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
             final KeyStore origKs = startingSnap.getKeyStore();
             origKs.deleteEntry(opts.getLabel());
 
@@ -78,16 +82,17 @@ public class DcmRemoveCertCmd {
             final File tmpFileKdb = TempFileManager.createTempFile();
             FileUtils.delete(tmpFileKdb);
             try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-                caller.callQykmImportKeyStore(tmpFileKdb.getAbsolutePath(), new String(opts.getDcmPassword()), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+                caller.callQykmImportKeyStore(logger, tmpFileKdb.getAbsolutePath(), new String(opts.getDcmPassword()), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
             }
 
             // now, replace the original
             FileUtils.moveToWithBackup(tmpFileKdb.getAbsolutePath(), opts.getDcmStore(), true);
-            tracker.printChanges();
+            tracker.printChanges(logger);
 
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1);
         } finally {

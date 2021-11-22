@@ -14,32 +14,33 @@ import java.util.Collections;
 
 import javax.security.auth.x500.X500Principal;
 
+import com.github.theprez.jcmdutils.AppLogger;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 
 public class CertUtils {
 
-    public static boolean areCertsEqual(final Certificate _cert1, final Certificate _cert2) throws CertificateEncodingException {
+    public static boolean areCertsEqual(final AppLogger _logger, final Certificate _cert1, final Certificate _cert2) throws CertificateEncodingException {
         if (!(_cert1 instanceof X509Certificate) || !(_cert2 instanceof X509Certificate)) {
             return _cert1.equals(_cert2);
         }
         final X509Certificate x1 = (X509Certificate) _cert1;
         final X509Certificate x2 = (X509Certificate) _cert2;
         if (Arrays.equals(x1.getTBSCertificate(), x2.getTBSCertificate())) {
-            // System.out.println("TBC cert match");
+            _logger.println_verbose("TBC cert match");
             return true;
         }
         if (Arrays.equals(x1.getSignature(), x2.getSignature())) {
-            // System.out.println("signatures match");
+            _logger.println_verbose("signatures match");
             return true;
         }
         if (Arrays.equals(x1.getPublicKey().getEncoded(), x2.getPublicKey().getEncoded())) {
-            // System.out.println("public keys match");
+            _logger.println_verbose("public keys match");
             return true;
         }
         if (Arrays.equals(x1.getEncoded(), x2.getEncoded())) {
-            // System.out.println("DER-encoded information matches");
+            _logger.println_verbose("DER-encoded information matches");
             return true;
         }
         if (x1.toString().equals(x2.toString())) {
@@ -54,7 +55,7 @@ public class CertUtils {
     // }
     // }
 
-    public static File exportDcmStore(final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+    public static File exportDcmStore(final AppLogger _logger, final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
         final File dest;
         if (null == _dest) {
             dest = TempFileManager.createTempFile();
@@ -63,7 +64,7 @@ public class CertUtils {
             dest = new File(_dest);
         }
         try (DcmApiCaller apiCaller = new DcmApiCaller(_isYesMode)) {
-            apiCaller.callQykmExportKeyStore(_dcmStore, _dcmStorePw, dest.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+            apiCaller.callQykmExportKeyStore(_logger, _dcmStore, _dcmStorePw, dest.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
         }
         return dest;
     }

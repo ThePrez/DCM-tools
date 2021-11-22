@@ -16,25 +16,25 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ProcessLauncher;
 import com.github.theprez.jcmdutils.ProcessLauncher.ProcessResult;
 import com.github.theprez.jcmdutils.StringUtils;
-import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 public class KeyStoreLoader {
     private static final String PKCS_12 = "PKCS12";
 
-    public static String extractTrustFromInstalledCerts() throws IOException {
+    public static String extractTrustFromInstalledCerts(final AppLogger _logger) throws IOException {
         final File destFile = TempFileManager.createTempFile(null);
         destFile.delete();
         final ProcessResult cmdResults = ProcessLauncher.exec("/QOpenSys/pkgs/bin/trust extract --format=java-cacerts --purpose=server-auth -v " + destFile.getAbsolutePath());
         if (0 != cmdResults.getExitStatus()) {
             for (final String errLine : cmdResults.getStderr()) {
-                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
+                _logger.println_err(errLine);
             }
             throw new IOException("Error extracting trusted certificates");
         }
-        System.out.println(StringUtils.colorizeForTerminal("Successfully extracted installed certificates", TerminalColor.GREEN));
+        _logger.println_success("Successfully extracted installed certificates");
         return destFile.getAbsolutePath(); // TODO: delete this file!
     }
 
@@ -44,7 +44,7 @@ public class KeyStoreLoader {
         m_keyStore = _ks;
     }
 
-    public KeyStoreLoader(final List<String> _files, final String _pw, final String _label, final boolean _caOnly) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public KeyStoreLoader(final AppLogger _logger, final List<String> _files, final String _pw, final String _label, final boolean _caOnly) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
 
         final List<String> filesToLoad = new LinkedList<String>();
         filesToLoad.addAll(_files);
@@ -113,14 +113,14 @@ public class KeyStoreLoader {
                 }
             }
             if (!isFileLoaded) {
-                System.out.println(StringUtils.colorizeForTerminal("WARNING: File " + new File(file).getName() + " will not be processed. It is in an unsupported format", TerminalColor.YELLOW));
+                _logger.println_warn("WARNING: File " + new File(file).getName() + " will not be processed. It is in an unsupported format");
             }
         }
         // Out of ideas
         if (!keyStore.aliases().hasMoreElements() && !isKeyStoreLoaded) {
             throw new IOException("Failure loading certificates");
         }
-        // System.out.println(StringUtils.colorizeForTerminal("Successfully loaded certificates", TerminalColor.GREEN));
+        _logger.println_verbose("Successfully loaded certificates");
         m_keyStore = keyStore;
     }
 

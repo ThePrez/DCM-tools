@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ProcessLauncher;
 import com.github.theprez.jcmdutils.ProcessLauncher.ProcessResult;
 import com.github.theprez.jcmdutils.StringUtils;
@@ -23,6 +24,8 @@ public class DcmRenewAcmeCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("-")) {
@@ -32,9 +35,10 @@ public class DcmRenewAcmeCmd {
                 domains.add(arg);
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
             if (domains.isEmpty()) {
-                System.err.println(StringUtils.colorizeForTerminal("ERROR: no domain specified", TerminalColor.BRIGHT_RED));
+                logger.println_err("ERROR: no domain specified");
                 printUsageAndExit();
             }
             final List<String> files = new LinkedList<String>();
@@ -46,13 +50,14 @@ public class DcmRenewAcmeCmd {
                 }
             }
             if (files.isEmpty()) {
-                System.err.println(StringUtils.colorizeForTerminal("ERROR: no new certificate generated", TerminalColor.BRIGHT_RED));
+                logger.println_err("ERROR: no new certificate generated");
             }
-            final CertRenewer off = new CertRenewer(files);
-            off.doRenew(opts);
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            final CertRenewer off = new CertRenewer(logger, files);
+            off.doRenew(logger, opts);
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1);
         } finally {

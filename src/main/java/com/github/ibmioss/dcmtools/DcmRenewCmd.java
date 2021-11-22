@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
@@ -21,6 +22,8 @@ public class DcmRenewCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if ("--ca-only".equals(arg)) {
@@ -32,16 +35,18 @@ public class DcmRenewCmd {
                 files.add(arg);
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
             if (files.isEmpty()) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
-            final CertRenewer off = new CertRenewer(files);
-            off.doRenew(opts);
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            final CertRenewer off = new CertRenewer(logger, files);
+            off.doRenew(logger, opts);
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1);
         } finally {

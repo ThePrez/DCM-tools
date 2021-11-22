@@ -4,6 +4,7 @@ import java.beans.PropertyVetoException;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
@@ -42,7 +43,7 @@ public class DcmApiCaller implements Closeable {
         }
     }
 
-    public void callQycdAddCACertTrust(final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdAddCACertTrust(final AppLogger _logger, final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
@@ -64,10 +65,10 @@ public class DcmApiCaller implements Closeable {
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdAddCACertTrust");
         // Run the program.
-        runProgram(program, ec);
+        runProgram(_logger, program, ec);
     }
 
-    public void callQycdRemoveCertUsage(final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdRemoveCertUsage(final AppLogger _logger, final String _dcmStore, final String _dcmStorePw, final String _appId, final String _alias) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
@@ -91,10 +92,10 @@ public class DcmApiCaller implements Closeable {
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdRemoveCertUsage");
         // Run the program.
-        runProgram(program, ec);
+        runProgram(_logger, program, ec);
     }
 
-    public void callQycdRenewCertificate_RNWC0300(final String _file) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdRenewCertificate_RNWC0300(final AppLogger _logger, final String _file) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QYCDRNWC.PGM";
@@ -123,15 +124,15 @@ public class DcmApiCaller implements Closeable {
 
         program.setProgram(programName, parameterList);
         // Run the program.
-        runProgram(program, ec);
+        runProgram(_logger, program, ec);
     }
 
-    public void callQycdRetrieveCertUsageInfo(final String _selectionCriteria) {
+    public void callQycdRetrieveCertUsageInfo(final AppLogger _logger, final String _selectionCriteria) {
         // TODO
 
     }
 
-    public void callQycdUpdateCertUsage(final String _appId, final String _certStoreName, final String _certId) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQycdUpdateCertUsage(final AppLogger _logger, final String _appId, final String _certStoreName, final String _certId) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
         final ProgramParameter[] parameterList = new ProgramParameter[8];
@@ -156,10 +157,10 @@ public class DcmApiCaller implements Closeable {
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdUpdateCertUsage");
         // Run the program.
-        runProgram(program, ec);
+        runProgram(_logger, program, ec);
     }
 
-    public void callQykmExportKeyStore(final String _dcmStore, final String _dcmStorePw, final String _exportFile, final String _exportFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQykmExportKeyStore(final AppLogger _logger, final String _dcmStore, final String _dcmStorePw, final String _exportFile, final String _exportFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QYKMEXPK.PGM";
@@ -196,11 +197,12 @@ public class DcmApiCaller implements Closeable {
 
         program.setProgram(programName, parameterList);
         // Run the program.
-        runProgram(program, ec);
+        runProgram(_logger, program, ec);
     }
 
     // QykmImportKeyStore
-    public void callQykmImportKeyStore(final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    public void callQykmImportKeyStore(final AppLogger _logger, final String _dcmStore, final String _dcmStorePw, final String _dcmImportFile, final String _importFilePw)
+            throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         final ProgramCall program = new ProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QYKMIMPK.PGM";
@@ -238,7 +240,7 @@ public class DcmApiCaller implements Closeable {
 
         program.setProgram(programName, parameterList);
         // Run the program.
-        runProgram(program, ec);
+        runProgram(_logger, program, ec);
     }
 
     @Override
@@ -246,18 +248,18 @@ public class DcmApiCaller implements Closeable {
         m_conn.disconnectAllServices();
     }
 
-    private void runProgram(final ProgramCall _program, final ErrorCodeParameter _ec) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
+    private void runProgram(final AppLogger _logger, final ProgramCall _program, final ErrorCodeParameter _ec) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
         if (!_program.run()) {
             for (final AS400Message msg : _program.getMessageList()) {
                 // Show each message.
-                System.err.println(StringUtils.colorizeForTerminal("" + msg, TerminalColor.BRIGHT_RED));
+                _logger.println_err("" + msg);
             }
             throw new IOException("DCM API call failure");
         }
         final String errorMessageId = _ec.getMessageID();
         for (final AS400Message msg : _program.getMessageList()) {
             // Show each message.
-            System.out.println(StringUtils.colorizeForTerminal("" + msg, TerminalColor.CYAN));
+            _logger.println(StringUtils.colorizeForTerminal("" + msg, TerminalColor.CYAN));
         }
         if (!StringUtils.isEmpty(errorMessageId)) {
             throw new IOException("API gave error message " + new MessageLookerUpper(errorMessageId.trim()));

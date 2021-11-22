@@ -12,8 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.DcmUserOpts;
-import com.github.theprez.jcmdutils.StringUtils;
-import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -90,16 +89,16 @@ public class DcmChangeTracker {
 
     private final KeyStoreInterrogator m_startingSnapshot;
 
-    public DcmChangeTracker(final DcmUserOpts _opts) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        m_startingSnapshot = KeyStoreInterrogator.getFromDCM(_opts.isYesMode(), _opts.getDcmStore(), _opts.getDcmPassword());
+    public DcmChangeTracker(final AppLogger _logger, final DcmUserOpts _opts) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        m_startingSnapshot = KeyStoreInterrogator.getFromDCM(_logger, _opts.isYesMode(), _opts.getDcmStore(), _opts.getDcmPassword());
         m_opts = _opts;
     }
 
-    public synchronized List<DcmChange> getChanges() throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+    public synchronized List<DcmChange> getChanges(final AppLogger _logger) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         final List<DcmChange> ret = new LinkedList<DcmChange>();
 
         // Get the current snapshot
-        final KeyStoreInterrogator current = KeyStoreInterrogator.getFromDCM(m_opts.isYesMode(), m_opts.getDcmStore(), m_opts.getDcmPassword());
+        final KeyStoreInterrogator current = KeyStoreInterrogator.getFromDCM(_logger, m_opts.isYesMode(), m_opts.getDcmStore(), m_opts.getDcmPassword());
 
         final ArrayList<String> startingAliases = Collections.list(m_startingSnapshot.getKeyStore().aliases());
         final ArrayList<String> currentAliases = Collections.list(current.getKeyStore().aliases());
@@ -124,7 +123,7 @@ public class DcmChangeTracker {
         for (final String commonAlias : intersection) {
             final Certificate oldCert = m_startingSnapshot.getKeyStore().getCertificate(commonAlias);
             final Certificate newCert = current.getKeyStore().getCertificate(commonAlias);
-            if (!CertUtils.areCertsEqual(oldCert, newCert)) {
+            if (!CertUtils.areCertsEqual(_logger, oldCert, newCert)) {
                 ret.add(new CertUpdatedhange(commonAlias, oldCert, newCert));
             }
         }
@@ -135,14 +134,14 @@ public class DcmChangeTracker {
         return m_startingSnapshot;
     }
 
-    public synchronized void printChanges() throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
-        final List<DcmChange> changes = getChanges();
+    public synchronized void printChanges(final AppLogger _logger) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+        final List<DcmChange> changes = getChanges(_logger);
         if (changes.isEmpty()) {
             throw new IOException("No changes were made to the DCM keystore!");
         }
-        System.out.println("The following changes were made on the DCM keystore:");
+        _logger.println("The following changes were made on the DCM keystore:");
         for (final DcmChange change : changes) {
-            System.out.println(StringUtils.colorizeForTerminal(change.getFormattedExplanation("    "), TerminalColor.GREEN));
+            _logger.println_success(change.getFormattedExplanation("    "));
         }
     }
 }

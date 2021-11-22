@@ -16,6 +16,7 @@ import java.util.List;
 
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -24,18 +25,18 @@ public class CertRenewer {
 
     private final List<String> m_fileNames;
 
-    public CertRenewer(final List<String> _fileNames) throws IOException {
+    public CertRenewer(final AppLogger _logger, final List<String> _fileNames) throws IOException {
         m_fileNames = new LinkedList<String>();
         for (final String fileName : _fileNames) {
-            m_fileNames.add(null == fileName ? KeyStoreLoader.extractTrustFromInstalledCerts() : fileName);
+            m_fileNames.add(null == fileName ? KeyStoreLoader.extractTrustFromInstalledCerts(_logger) : fileName);
         }
     }
 
-    public void doRenew(final DcmUserOpts _opts) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+    public void doRenew(final AppLogger _logger, final DcmUserOpts _opts) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
 
         final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
-        final KeyStore keyStore = new KeyStoreLoader(m_fileNames, null, null, false).getKeyStore();
+        final KeyStore keyStore = new KeyStoreLoader(null, m_fileNames, null, null, false).getKeyStore();
 
         for (final String alias : Collections.list(keyStore.aliases())) {
             renewCert(keyStore.getCertificate(alias));

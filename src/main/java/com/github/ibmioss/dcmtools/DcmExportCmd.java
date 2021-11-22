@@ -2,6 +2,7 @@ package com.github.ibmioss.dcmtools;
 
 import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
@@ -18,6 +19,8 @@ public class DcmExportCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--password=")) {
@@ -47,15 +50,17 @@ public class DcmExportCmd {
                 file = arg;
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         if (null == file) {
             System.err.println(StringUtils.colorizeForTerminal("ERROR: target file not specified", TerminalColor.BRIGHT_RED));
             printUsageAndExit();
         }
         try {
-            new CertFileExporter(file).doExport(opts);
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            new CertFileExporter(file).doExport(logger, opts);
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             e.printStackTrace();
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal

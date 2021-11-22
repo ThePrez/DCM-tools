@@ -8,6 +8,7 @@ import java.util.Collections;
 import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.FileUtils;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
@@ -23,6 +24,8 @@ public class DcmViewCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--dcm-store=")) {
@@ -39,21 +42,23 @@ public class DcmViewCmd {
                 printUsageAndExit();
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
             final File tmpFile = TempFileManager.createTempFile();
             FileUtils.delete(tmpFile);
-            CertUtils.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath());
+            CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath());
             KeyStore fileKs = null;
             try (FileInputStream fis = new FileInputStream(tmpFile)) {
                 fileKs = KeyStore.getInstance("pkcs12");
                 fileKs.load(fis, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
             }
             for (final String label : Collections.list(fileKs.aliases())) {
-                System.out.println("label '" + label + "'");
-                System.out.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(fileKs.getCertificate(label), "    "), TerminalColor.CYAN));
+                logger.println("label '" + label + "'");
+                logger.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(fileKs.getCertificate(label), "    "), TerminalColor.CYAN));
             }
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
         } finally {
