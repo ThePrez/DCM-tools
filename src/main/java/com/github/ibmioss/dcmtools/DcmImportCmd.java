@@ -11,6 +11,7 @@ import java.util.List;
 import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.ProcessLauncher;
 import com.github.theprez.jcmdutils.ProcessLauncher.ProcessResult;
@@ -24,11 +25,11 @@ import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
  */
 public class DcmImportCmd {
 
-    private static String fetchCerts(final boolean _isYesMode, final String _fetchFrom) throws IOException {
+    private static String fetchCerts(final AppLogger _logger, final boolean _isYesMode, final String _fetchFrom) throws IOException {
         final ProcessResult cmdResults = ProcessLauncher.exec("openssl s_client -connect " + _fetchFrom + " -showcerts");
         if (0 != cmdResults.getExitStatus()) {
             for (final String errLine : cmdResults.getStderr()) {
-                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
+                _logger.println_err(errLine);
             }
             throw new IOException("Error extracting trusted certificates");
         }
@@ -38,12 +39,12 @@ public class DcmImportCmd {
                 isCertificateFetched = true;
             }
             if (!_isYesMode) {
-                System.out.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
+                _logger.println(StringUtils.colorizeForTerminal(line, TerminalColor.CYAN));
             }
         }
         if (!isCertificateFetched) {
             for (final String errLine : cmdResults.getStderr()) {
-                System.err.println(StringUtils.colorizeForTerminal(errLine, TerminalColor.RED));
+                _logger.println_err(errLine);
             }
             throw new IOException("Error extracting trusted certificates");
         }
@@ -78,6 +79,8 @@ public class DcmImportCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--password=")) {
@@ -113,26 +116,28 @@ public class DcmImportCmd {
                 files.add(arg);
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {// TODO: handle multi-file better
             if (!files.isEmpty() && !fetchFroms.isEmpty()) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: Cannot specify file(s) when using '--fetch-from'", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
             for (final String fetchFrom : fetchFroms) {
-                files.add(fetchCerts(opts.isYesMode(), fetchFrom));
+                files.add(fetchCerts(logger, opts.isYesMode(), fetchFrom));
             }
             if (files.isEmpty()) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
 
-            final DcmChangeTracker dcmTracker = new DcmChangeTracker(opts);
-            final CertFileImporter off = new CertFileImporter(files);
-            off.doImport(opts, dcmTracker);
-            dcmTracker.printChanges();
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            final DcmChangeTracker dcmTracker = new DcmChangeTracker(logger, opts);
+            final CertFileImporter off = new CertFileImporter(logger, files);
+            off.doImport(logger, opts, dcmTracker);
+            dcmTracker.printChanges(logger);
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1);
         } finally {

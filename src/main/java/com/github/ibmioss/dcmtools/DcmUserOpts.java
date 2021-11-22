@@ -18,6 +18,7 @@ public class DcmUserOpts {
     private String dcmStore = SYSTEM_DCM_STORE;
 
     private boolean isYesMode = false;
+    private boolean isVerbose = false;
 
     public String getDcmPassword() throws IOException {
 
@@ -47,6 +48,10 @@ public class DcmUserOpts {
         return dcmStore;
     }
 
+    public boolean isVerbose() {
+        return isVerbose;
+    }
+
     public boolean isYesMode() {
         return isYesMode;
     }
@@ -57,6 +62,10 @@ public class DcmUserOpts {
 
     public void setDcmStore(final String _dcmStore) {
         this.dcmStore = null == _dcmStore ? null : new File(_dcmStore).getAbsolutePath();
+    }
+
+    public void setVerbose(final boolean _b) {
+        this.isVerbose = _b;
     }
 
     public void setYesMode(final boolean isYesMode) {

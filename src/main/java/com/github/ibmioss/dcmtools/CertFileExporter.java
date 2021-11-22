@@ -14,6 +14,7 @@ import java.util.Collections;
 import javax.security.auth.x500.X500Principal;
 
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
@@ -77,16 +78,16 @@ public class CertFileExporter {
         m_fileName = _fileName;
     }
 
-    public void doExport(final ExportOptions _opts) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        final DcmChangeTracker changeTracker = new DcmChangeTracker(_opts);
+    public void doExport(final AppLogger _logger, final ExportOptions _opts) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        final DcmChangeTracker changeTracker = new DcmChangeTracker(_logger, _opts);
         final KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(_opts.outputFileFormat) ? "pkcs12" : _opts.outputFileFormat);
         destKs.load(null, null);
         for (final String alias : Collections.list(changeTracker.getStartingSnapshot().getKeyStore().aliases())) {
             final Certificate cert = changeTracker.getStartingSnapshot().getKeyStore().getCertificate(alias);
             if (cert instanceof X509Certificate) {
-                System.out.println("    " + alias + ": " + StringUtils.colorizeForTerminal(((X509Certificate) cert).getIssuerX500Principal().getName(X500Principal.RFC1779), TerminalColor.CYAN));
+                _logger.println("    " + alias + ": " + StringUtils.colorizeForTerminal(((X509Certificate) cert).getIssuerX500Principal().getName(X500Principal.RFC1779), TerminalColor.CYAN));
             } else {
-                System.out.println("    " + alias + ": " + StringUtils.colorizeForTerminal("<unknown CN>", TerminalColor.BRIGHT_RED));
+                _logger.println_err("    " + alias + ": " + StringUtils.colorizeForTerminal("<unknown CN>", TerminalColor.BRIGHT_RED));
             }
             destKs.setCertificateEntry(alias, cert);
         }

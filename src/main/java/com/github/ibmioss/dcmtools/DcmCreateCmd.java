@@ -6,6 +6,7 @@ import java.security.KeyStore;
 
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
@@ -21,6 +22,8 @@ public class DcmCreateCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--dcm-store=")) {
@@ -47,13 +50,14 @@ public class DcmCreateCmd {
                 }
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
             final String dcmStore = opts.getDcmStore().trim();
             if (StringUtils.isEmpty(dcmStore)) {
                 System.err.println(StringUtils.colorizeForTerminal("ERROR: no input files specified", TerminalColor.BRIGHT_RED));
                 printUsageAndExit();
             }
-            System.out.println("Creating DCM store at " + dcmStore);
+            logger.println("Creating DCM store at " + dcmStore);
             final KeyStore ks = KeyStore.getInstance("PKCS12");
             ks.load(null, opts.getDcmPassword().toCharArray());
             final File tmpFile = TempFileManager.createTempFile();
@@ -61,11 +65,12 @@ public class DcmCreateCmd {
                 ks.store(fos, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
             }
             try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-                caller.callQykmImportKeyStore(opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+                caller.callQykmImportKeyStore(logger, opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
             }
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             TempFileManager.cleanup();
             System.exit(-1);
         } finally {

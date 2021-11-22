@@ -15,6 +15,7 @@ import java.util.Base64.Encoder;
 import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
@@ -73,6 +74,8 @@ public class DcmExportCertCmd {
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
                 opts.setYesMode(true);
+            } else if ("-v".equals(arg)) {
+                opts.setVerbose(true);
             } else if ("-h".equals(arg) || "--help".equals(arg)) {
                 printUsageAndExit();
             } else if (arg.startsWith("--dcm-store=")) {
@@ -104,13 +107,14 @@ public class DcmExportCertCmd {
                 file = arg;
             }
         }
+        final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         if (null == file) {
             System.err.println(StringUtils.colorizeForTerminal("ERROR: target file not specified", TerminalColor.BRIGHT_RED));
             printUsageAndExit();
         }
         try {
-            final File dcmStore = CertUtils.exportDcmStore(opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), null);
-            final KeyStoreLoader loader = new KeyStoreLoader(Arrays.asList(dcmStore.getAbsolutePath()), TempFileManager.TEMP_KEYSTORE_PWD, opts.getLabel(), false);
+            final File dcmStore = CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), null);
+            final KeyStoreLoader loader = new KeyStoreLoader(null, Arrays.asList(dcmStore.getAbsolutePath()), TempFileManager.TEMP_KEYSTORE_PWD, opts.getLabel(), false);
             final KeyStore keyStore = loader.getKeyStore();
             final Certificate cert = keyStore.getCertificate(opts.getLabel());
 
@@ -138,9 +142,10 @@ public class DcmExportCertCmd {
                     out.write(der);
                 }
             }
-            System.out.println(StringUtils.colorizeForTerminal("SUCCESS!!!", TerminalColor.GREEN));
+            logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
-            System.err.println(StringUtils.colorizeForTerminal(e.getLocalizedMessage(), TerminalColor.BRIGHT_RED));
+            logger.printExceptionStack_verbose(e);
+            logger.println_err(e.getLocalizedMessage());
             e.printStackTrace();
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
