@@ -3,8 +3,8 @@ package com.github.ibmioss.dcmtools;
 import java.io.File;
 import java.io.IOException;
 
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
 
 public class DcmUserOpts {
     public static final String SYSTEM_DCM_STORE = "/QIBM/UserData/ICSS/Cert/Server/DEFAULT.KDB";
@@ -28,14 +28,14 @@ public class DcmUserOpts {
         if (isYesMode) {
             throw new IOException("DCM keystore password not specified");
         }
-        return dcmPassword = ConsoleUtils.askUserForPwd("Enter DCM keystore password: ");
+        return dcmPassword = ConsoleQuestionAsker.get().askUserForPwd("Enter DCM keystore password: ");
     }
 
     public String getDcmStore() throws IOException {
         if (StringUtils.isNonEmpty(dcmStore)) {
             return dcmStore;
         }
-        final String dcmStoreResp = isYesMode ? "*SYSTEM" : ConsoleUtils.askUserWithDefault("Target DCM keystore: (leave blank for *SYSTEM) ", "*SYSTEM");
+        final String dcmStoreResp = isYesMode ? "*SYSTEM" : ConsoleQuestionAsker.get().askUserWithDefault("Target DCM keystore: (leave blank for *SYSTEM) ", "*SYSTEM");
         if ("*SYSTEM".equals(dcmStoreResp.trim().toUpperCase()) || "SYSTEM".equals(dcmStoreResp.trim().toUpperCase())) {
             return dcmStore = SYSTEM_DCM_STORE;
         } else {

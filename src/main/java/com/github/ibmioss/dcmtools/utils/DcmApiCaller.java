@@ -4,7 +4,9 @@ import java.beans.PropertyVetoException;
 import java.io.Closeable;
 import java.io.IOException;
 
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400Bin4;
 import com.ibm.as400.access.AS400DataType;
@@ -31,12 +33,12 @@ public class DcmApiCaller implements Closeable {
             if (_isYesMode) {
                 throw new IOException("IBM i password not specified. Run in interactive mode or with JV1 Java for this to work.");
             }
-            m_conn = new AS400("localhost", System.getProperty("user.name", "*CURRENT"), ConsoleUtils.askUserOrThrow("Enter IBM i password: "));
+            m_conn = new AS400("localhost", System.getProperty("user.name", "*CURRENT"), ConsoleQuestionAsker.get().askUserOrThrow("Enter IBM i password: "));
         } else {
             if (_isYesMode) {
                 throw new IOException("Not allowed with '-y'");
             }
-            m_conn = new AS400(ConsoleUtils.askUserOrThrow("Enter IBM i system name: "), ConsoleUtils.askUserOrThrow("Enter IBM i user name: "), ConsoleUtils.askUserForPwd("Enter IBM i password: "));
+            m_conn = new AS400(ConsoleQuestionAsker.get().askUserOrThrow("Enter IBM i system name: "), ConsoleQuestionAsker.get().askUserOrThrow("Enter IBM i user name: "), ConsoleQuestionAsker.get().askUserForPwd("Enter IBM i password: "));
         }
     }
 

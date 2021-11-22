@@ -9,13 +9,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.ProcessLauncher;
+import com.github.theprez.jcmdutils.ProcessLauncher.ProcessResult;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 /**
  * Main entry point for the application
@@ -47,7 +47,7 @@ public class DcmImportCmd {
             }
             throw new IOException("Error extracting trusted certificates");
         }
-        final String reply = _isYesMode ? "y" : ConsoleUtils.askUserWithDefault("Do you trust the certificate(s) listed above? [y/N] ", "N");
+        final String reply = _isYesMode ? "y" : ConsoleQuestionAsker.get().askUserWithDefault("Do you trust the certificate(s) listed above? [y/N] ", "N");
         if (!reply.toLowerCase().trim().startsWith("y")) {
             throw new IOException("User Canceled");
         }

@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.FileUtils;
 import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 /**
  * Main entry point for the application
@@ -32,7 +32,7 @@ public class DcmRenameCertCmd {
                 return m_newLabel;
             }
             if (!isYesMode()) {
-                return m_newLabel = ConsoleUtils.askUserOrThrow("Enter new label: ");
+                return m_newLabel = ConsoleQuestionAsker.get().askUserOrThrow("Enter new label: ");
             }
             throw new IOException("ERROR: new label is required");
         }
@@ -43,7 +43,7 @@ public class DcmRenameCertCmd {
                 return m_oldLabel;
             }
             if (!isYesMode()) {
-                return m_oldLabel = ConsoleUtils.askUserOrThrow("Enter old label: ");
+                return m_oldLabel = ConsoleQuestionAsker.get().askUserOrThrow("Enter old label: ");
             }
             throw new IOException("ERROR: old label is required");
         }

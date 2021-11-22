@@ -13,10 +13,10 @@ import java.util.Collections;
 
 import javax.security.auth.x500.X500Principal;
 
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -36,7 +36,7 @@ public class CertFileExporter {
                 return null;
             }
             if (StringUtils.isEmpty(password) && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserForPwd("Enter output file password: ");
+                final String resp = ConsoleQuestionAsker.get().askUserForPwd("Enter output file password: ");
                 return password = resp.toCharArray();
             } else {
                 return password;
@@ -48,7 +48,7 @@ public class CertFileExporter {
                 return password;
             }
             if (StringUtils.isEmpty(password) && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserForPwd("Enter output file password: ");
+                final String resp = ConsoleQuestionAsker.get().askUserForPwd("Enter output file password: ");
                 return password = resp.toCharArray();
             }
             throw new IOException("ERROR: Password is required");

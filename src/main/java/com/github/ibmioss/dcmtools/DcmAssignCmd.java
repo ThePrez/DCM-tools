@@ -6,11 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 public class DcmAssignCmd {
     private static class AssignOptions extends DcmUserOpts {
@@ -24,7 +24,7 @@ public class DcmAssignCmd {
 
         Set<String> getApps() throws IOException {
             if (m_apps.isEmpty() && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserOrThrow("Enter application ID: ");
+                final String resp = ConsoleQuestionAsker.get().askUserOrThrow("Enter application ID: ");
                 m_apps.add(resp);
                 return m_apps;
             }
@@ -52,7 +52,7 @@ public class DcmAssignCmd {
                 return m_certId;
             }
             if (StringUtils.isEmpty(m_certId) && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserOrThrow("Enter certificate ID: ");
+                final String resp = ConsoleQuestionAsker.get().askUserOrThrow("Enter certificate ID: ");
                 return m_certId = resp;
             }
             throw new IOException("ERROR: Certificate ID is required");

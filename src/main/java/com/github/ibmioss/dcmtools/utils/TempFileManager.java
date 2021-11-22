@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.github.theprez.jcmdutils.StringUtils;
+
 public class TempFileManager {
 
     private static final List<File> s_dirsToCleanup = new LinkedList<File>();

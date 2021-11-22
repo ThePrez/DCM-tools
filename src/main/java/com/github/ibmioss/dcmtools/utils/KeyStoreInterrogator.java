@@ -13,7 +13,8 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
