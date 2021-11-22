@@ -13,14 +13,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.utils.CertUtils;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
 import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -41,7 +41,7 @@ public class CertFileImporter {
                 return null;
             }
             if (StringUtils.isEmpty(password) && !isYesMode()) {
-                final String resp = ConsoleUtils.askUserForPwd("Enter input file password: ");
+                final String resp = ConsoleQuestionAsker.get().askUserForPwd("Enter input file password: ");
                 return password = resp;
             } else {
                 return password;
@@ -124,7 +124,7 @@ public class CertFileImporter {
             System.out.println("    Certificate ID '" + alias + "':");
             System.out.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(cert, "        "), TerminalColor.CYAN));
         }
-        final String reply = isYesMode ? "y" : ConsoleUtils.askUserWithDefault("Do you want to import ALL of the above certificates into DCM? [y/N] ", "N");
+        final String reply = isYesMode ? "y" : ConsoleQuestionAsker.get().askUserWithDefault("Do you want to import ALL of the above certificates into DCM? [y/N] ", "N");
         if (!reply.toLowerCase().trim().startsWith("y")) {
             throw new IOException("No certificates to import");
         }

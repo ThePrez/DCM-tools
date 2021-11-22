@@ -13,11 +13,11 @@ import java.util.Base64;
 import java.util.Base64.Encoder;
 
 import com.github.ibmioss.dcmtools.utils.CertUtils;
-import com.github.ibmioss.dcmtools.utils.ConsoleUtils;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 /**
  * Main entry point for the application
@@ -41,7 +41,7 @@ public class DcmExportCertCmd {
                 return m_format = OutputFormat.PEM;
             }
 
-            final String resp = ConsoleUtils.askUserWithDefault("Whic output format, 'der' or 'pem'? (default: pem) ", "pem");
+            final String resp = ConsoleQuestionAsker.get().askUserWithDefault("Whic output format, 'der' or 'pem'? (default: pem) ", "pem");
 
             try {
                 return m_format = OutputFormat.valueOf(resp.trim().toUpperCase());
@@ -54,7 +54,7 @@ public class DcmExportCertCmd {
             if (null != m_label) {
                 return m_label;
             }
-            return m_label = ConsoleUtils.askUserOrThrow("Enter the certificate Id: ");
+            return m_label = ConsoleQuestionAsker.get().askUserOrThrow("Enter the certificate Id: ");
         }
 
         public void setLabel(final String _lbl) {

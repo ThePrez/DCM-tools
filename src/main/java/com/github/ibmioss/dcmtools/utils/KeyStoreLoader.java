@@ -16,8 +16,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
+import com.github.theprez.jcmdutils.ProcessLauncher;
+import com.github.theprez.jcmdutils.ProcessLauncher.ProcessResult;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 public class KeyStoreLoader {
     private static final String PKCS_12 = "PKCS12";

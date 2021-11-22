@@ -3,11 +3,11 @@ package com.github.ibmioss.dcmtools;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher;
-import com.github.ibmioss.dcmtools.utils.ProcessLauncher.ProcessResult;
-import com.github.ibmioss.dcmtools.utils.StringUtils;
-import com.github.ibmioss.dcmtools.utils.StringUtils.TerminalColor;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
+import com.github.theprez.jcmdutils.ProcessLauncher;
+import com.github.theprez.jcmdutils.ProcessLauncher.ProcessResult;
+import com.github.theprez.jcmdutils.StringUtils;
+import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
 /**
  * Main entry point for the application
