@@ -1,6 +1,7 @@
 package com.github.ibmioss.dcmtools;
 
 import java.beans.PropertyVetoException;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
@@ -39,13 +41,16 @@ public class CertRenewer {
         final KeyStore keyStore = new KeyStoreLoader(null, m_fileNames, null, null, false).getKeyStore();
 
         for (final String alias : Collections.list(keyStore.aliases())) {
-            renewCert(keyStore.getCertificate(alias));
+            renewCert(_logger, keyStore.getCertificate(alias),_opts);
         }
     }
 
-    private void renewCert(final Certificate _cert) throws CertificateEncodingException, FileNotFoundException, IOException {
-        try (FileOutputStream fos = new FileOutputStream(TempFileManager.createTempFile())) {
+    private void renewCert(final AppLogger _logger, final Certificate _cert, final DcmUserOpts _opts) throws CertificateEncodingException, FileNotFoundException, IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+        File tmpFile = TempFileManager.createTempFile();
+        try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
             fos.write(_cert.getEncoded());
         }
+        new DcmApiCaller(_opts.isYesMode()).callQycdRenewCertificate_RNWC0300(_logger, tmpFile.getAbsolutePath());
+        tmpFile.delete();
     }
 }
