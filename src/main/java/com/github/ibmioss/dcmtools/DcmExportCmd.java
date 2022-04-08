@@ -66,8 +66,12 @@ public class DcmExportCmd {
             printUsageAndExit();
         }
         try {
+            if("pkcs12".equalsIgnoreCase(opts.getOutputFileFormat())) {
+                CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), file, opts.getPasswordOrThrow());
+                return;
+            }
             final KeyStore sourceKs = CertUtils.exportDcmStoreToKeystoreObj(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
-            final KeyStore destKs = KeyStore.getInstance(StringUtils.isEmpty(opts.outputFileFormat) ? "pkcs12" : opts.outputFileFormat);
+            final KeyStore destKs = KeyStore.getInstance(opts.outputFileFormat);
             destKs.load(null, null);
             for (final String alias : Collections.list(sourceKs.aliases())) {
                 final Certificate cert = sourceKs.getCertificate(alias);
@@ -115,7 +119,7 @@ public class DcmExportCmd {
 
     public static class ExportOptions extends DcmUserOpts {
         public boolean isPasswordProtected = false;
-        public String outputFileFormat = null;
+        public String outputFileFormat = "pkcs12";
         public char[] password = null;
 
         public String getOutputFileFormat() {

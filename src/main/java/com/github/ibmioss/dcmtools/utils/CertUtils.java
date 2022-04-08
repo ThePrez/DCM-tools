@@ -18,6 +18,7 @@ import java.util.Collections;
 import javax.security.auth.x500.X500Principal;
 
 import com.github.theprez.jcmdutils.AppLogger;
+import com.github.theprez.jcmdutils.StringUtils;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
@@ -58,7 +59,7 @@ public class CertUtils {
     // }
     // }
 
-    public static File exportDcmStore(final AppLogger _logger, final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+    public static File exportDcmStore(final AppLogger _logger, final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw, final String _dest, char[] _pw) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
         final File dest;
         if (null == _dest) {
             dest = TempFileManager.createTempFile();
@@ -67,7 +68,7 @@ public class CertUtils {
             dest = new File(_dest);
         }
         try (DcmApiCaller apiCaller = new DcmApiCaller(_isYesMode)) {
-            apiCaller.callQykmExportKeyStore(_logger, _dcmStore, _dcmStorePw, dest.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+            apiCaller.callQykmExportKeyStore(_logger, _dcmStore, _dcmStorePw, dest.getAbsolutePath(), StringUtils.isEmpty(_pw) ?TempFileManager.TEMP_KEYSTORE_PWD: new String(_pw));
         }
         return dest;
     }
@@ -108,7 +109,7 @@ public class CertUtils {
     public static KeyStore exportDcmStoreToKeystoreObj(AppLogger _logger, boolean _yesMode, String _dcmStore, String _dcmPassword) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
         final File tmpFile = TempFileManager.createTempFile();
         FileUtils.delete(tmpFile);
-        CertUtils.exportDcmStore(_logger,  _yesMode,  _dcmStore,  _dcmPassword,  tmpFile.getAbsolutePath());
+        CertUtils.exportDcmStore(_logger,  _yesMode,  _dcmStore,  _dcmPassword,  tmpFile.getAbsolutePath(), null);
         KeyStore fileKs = null;
         try (FileInputStream fis = new FileInputStream(tmpFile)) {
             fileKs = KeyStore.getInstance("pkcs12");
