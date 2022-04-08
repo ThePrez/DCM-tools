@@ -2,11 +2,14 @@ package com.github.ibmioss.dcmtools.utils;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -100,6 +103,18 @@ public class CertUtils {
             _dest.setCertificateEntry(alias, _src.getCertificate(alias));
         }
         return _dest;
+    }
+
+    public static KeyStore exportDcmStoreToKeystoreObj(AppLogger _logger, boolean _yesMode, String _dcmStore, String _dcmPassword) throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
+        final File tmpFile = TempFileManager.createTempFile();
+        FileUtils.delete(tmpFile);
+        CertUtils.exportDcmStore(_logger,  _yesMode,  _dcmStore,  _dcmPassword,  tmpFile.getAbsolutePath());
+        KeyStore fileKs = null;
+        try (FileInputStream fis = new FileInputStream(tmpFile)) {
+            fileKs = KeyStore.getInstance("pkcs12");
+            fileKs.load(fis, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
+            return fileKs;
+        }
     }
 
 }

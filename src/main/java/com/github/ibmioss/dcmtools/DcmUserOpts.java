@@ -40,7 +40,7 @@ public class DcmUserOpts {
         if ("*SYSTEM".equals(dcmStoreResp.trim().toUpperCase()) || "SYSTEM".equals(dcmStoreResp.trim().toUpperCase())) {
             return dcmStore = SYSTEM_DCM_STORE;
         } else {
-            return dcmStore = new File(dcmStoreResp).getAbsolutePath();
+            return dcmStore = new File(dcmStoreResp.trim()).getAbsolutePath();
         }
     }
 

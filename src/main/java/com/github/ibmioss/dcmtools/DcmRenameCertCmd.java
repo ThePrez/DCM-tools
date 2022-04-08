@@ -1,10 +1,14 @@
 package com.github.ibmioss.dcmtools;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
+import java.security.Security;
+import java.security.KeyStore.ProtectionParameter;
 import java.security.cert.Certificate;
+import java.util.Collections;
 
 import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
@@ -59,6 +63,8 @@ public class DcmRenameCertCmd {
     }
 
     public static void main(final String... _args) {
+//        System.out.println("Using PBEWithSHA1And3KeyTripleDES");
+//        Security.setProperty("keystore.pkcs12.keyProtectionAlgorithm", "PBEWithSHA1And3KeyTripleDES");
         final CertRenameOpts opts = new CertRenameOpts();
         for (final String arg : _args) {
             if ("-y".equals(arg)) {
@@ -88,26 +94,24 @@ public class DcmRenameCertCmd {
         final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
             final DcmChangeTracker tracker = new DcmChangeTracker(logger, opts);
-            final KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
-            final KeyStore origKs = startingSnap.getKeyStore();
-            final String oldLabel = opts.getOldLabel();
-            final Certificate cert = origKs.getCertificate(oldLabel);
-            origKs.deleteEntry(oldLabel);
-            origKs.setCertificateEntry(opts.getNewLabel(), cert);
-            // At this point, we have a KeyStore object with the change made. Now, let's write it to a temp file
-            final File tmpFile = TempFileManager.createTempFile();
-            try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
-                origKs.store(fos, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
+
+            KeyStore ks = KeyStore.getInstance("IBMi5OSKeyStore");
+            try (FileInputStream fis = new FileInputStream(opts.getDcmStore())) {
+                ks.load(fis, opts.getDcmPassword().toCharArray());
             }
-            // Next, need to save it to .kdb format
-            final File tmpFileKdb = TempFileManager.createTempFile();
-            FileUtils.delete(tmpFileKdb);
-            try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-                caller.callQykmImportKeyStore(logger, tmpFileKdb.getAbsolutePath(), new String(opts.getDcmPassword()), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+            final String oldLabel = opts.getOldLabel();
+            final Certificate cert = ks.getCertificate(oldLabel);
+            final String newLabel = opts.getNewLabel();
+            System.out.println("loaded: ");
+            for(String alias : Collections.list(ks.aliases())) {
+                System.out.println("  "+alias);
+            }
+            ks.deleteEntry(oldLabel);
+            ks.setCertificateEntry(newLabel, cert);
+            try (FileOutputStream fos = new FileOutputStream(opts.getDcmStore())) {
+                ks.store(fos, opts.getDcmPassword().toCharArray());
             }
 
-            // now, replace the original
-            FileUtils.moveToWithBackup(tmpFileKdb.getAbsolutePath(), opts.getDcmStore(), true);
             tracker.printChanges(logger);
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {

@@ -1,14 +1,11 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 
-import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
-import com.github.ibmioss.dcmtools.utils.FileUtils;
-import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
@@ -69,26 +66,16 @@ public class DcmRemoveCertCmd {
         final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
             final DcmChangeTracker tracker = new DcmChangeTracker(logger, opts);
-            final KeyStoreInterrogator startingSnap = KeyStoreInterrogator.getFromDCM(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
-            final KeyStore origKs = startingSnap.getKeyStore();
-            origKs.deleteEntry(opts.getLabel());
 
-            // At this point, we have a KeyStore object with the change made. Now, let's write it to a temp file
-            final File tmpFile = TempFileManager.createTempFile();
-            try (FileOutputStream fos = new FileOutputStream(tmpFile)) {
-                origKs.store(fos, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
+            KeyStore ks = KeyStore.getInstance("IBMi5OSKeyStore");
+            try (FileInputStream fis = new FileInputStream(opts.getDcmStore())) {
+                ks.load(fis, opts.getDcmPassword().toCharArray());
             }
-            // Next, need to save it to .kdb format
-            final File tmpFileKdb = TempFileManager.createTempFile();
-            FileUtils.delete(tmpFileKdb);
-            try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-                caller.callQykmImportKeyStore(logger, tmpFileKdb.getAbsolutePath(), new String(opts.getDcmPassword()), tmpFile.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
+            ks.deleteEntry(opts.getLabel());
+            try (FileOutputStream fos = new FileOutputStream(opts.getDcmStore())) {
+                ks.store(fos, opts.getDcmPassword().toCharArray());
             }
-
-            // now, replace the original
-            FileUtils.moveToWithBackup(tmpFileKdb.getAbsolutePath(), opts.getDcmStore(), true);
             tracker.printChanges(logger);
-
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
             logger.printExceptionStack_verbose(e);

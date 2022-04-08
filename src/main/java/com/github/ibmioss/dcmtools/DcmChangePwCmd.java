@@ -1,6 +1,9 @@
 package com.github.ibmioss.dcmtools;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
 
 import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
 import com.github.ibmioss.dcmtools.utils.CertUtils;
@@ -47,19 +50,15 @@ public class DcmChangePwCmd {
         }
         final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
-            final File tmpFileOld = TempFileManager.createTempFile();
-            FileUtils.delete(tmpFileOld);
-            CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFileOld.getAbsolutePath());
-            // At this point, we've exported to a temp file with the temp file password. Import that into a new temp DCM store
-            // .... and now we import that into a NEW temp file that has the new password
-            final File tmpFileNew = TempFileManager.createTempFile();
-            FileUtils.delete(tmpFileNew);
-            try (DcmApiCaller caller = new DcmApiCaller(opts.isYesMode())) {
-                caller.callQykmImportKeyStore(logger, tmpFileNew.getAbsolutePath(), new String(opts.getPasswordOrThrow()), tmpFileOld.getAbsolutePath(), TempFileManager.TEMP_KEYSTORE_PWD);
-            }
+            
 
-            // now, replace the original
-            FileUtils.moveToWithBackup(tmpFileNew.getAbsolutePath(), opts.getDcmStore(), true);
+            KeyStore ks = KeyStore.getInstance("IBMi5OSKeyStore");
+            try (FileInputStream fis = new FileInputStream(opts.getDcmStore())) {
+                ks.load(fis, opts.getDcmPassword().toCharArray());
+            }
+            try (FileOutputStream fos = new FileOutputStream(opts.getDcmStore())) {
+                ks.store(fos, opts.getPasswordOrThrow());
+            }
 
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
