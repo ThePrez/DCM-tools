@@ -138,6 +138,7 @@ public class DcmApiCaller implements Closeable {
         final ProgramParameter[] parameterList = new ProgramParameter[8];
         // 1 Application ID Output Char(*)
         parameterList[0] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
+        parameterList[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         // 2 Length of application ID Input Binary(4)
         parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
         // 3 Certificate store name Input Char(*)
