@@ -1,19 +1,12 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
-import java.security.Security;
-import java.security.KeyStore.ProtectionParameter;
 import java.security.cert.Certificate;
-import java.util.Collections;
 
-import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
-import com.github.ibmioss.dcmtools.utils.FileUtils;
-import com.github.ibmioss.dcmtools.utils.KeyStoreInterrogator;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
@@ -102,10 +95,6 @@ public class DcmRenameCertCmd {
             final String oldLabel = opts.getOldLabel();
             final Certificate cert = ks.getCertificate(oldLabel);
             final String newLabel = opts.getNewLabel();
-            System.out.println("loaded: ");
-            for(String alias : Collections.list(ks.aliases())) {
-                System.out.println("  "+alias);
-            }
             ks.deleteEntry(oldLabel);
             ks.setCertificateEntry(newLabel, cert);
             try (FileOutputStream fos = new FileOutputStream(opts.getDcmStore())) {

@@ -1,12 +1,9 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.util.Collections;
 
 import com.github.ibmioss.dcmtools.utils.CertUtils;
-import com.github.ibmioss.dcmtools.utils.FileUtils;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;

@@ -1,14 +1,10 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 
-import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
-import com.github.ibmioss.dcmtools.utils.CertUtils;
-import com.github.ibmioss.dcmtools.utils.DcmApiCaller;
-import com.github.ibmioss.dcmtools.utils.FileUtils;
+import com.github.ibmioss.dcmtools.DcmExportCmd.ExportOptions;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;
@@ -22,7 +18,7 @@ import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 public class DcmChangePwCmd {
 
     public static void main(final String... _args) {
-        final ExportOptions opts = new CertFileExporter.ExportOptions();
+        final ExportOptions opts = new DcmExportCmd.ExportOptions();
         opts.setDcmStore(null);
         opts.setPasswordProtected(true);
         for (final String arg : _args) {
