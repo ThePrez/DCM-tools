@@ -22,7 +22,7 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
 public class KeyStoreInterrogator {
     public static KeyStoreInterrogator getFromDCM(final AppLogger _logger, final boolean _isYesMode, final String _dcmStore, final String _dcmStorePw)
             throws IOException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException, KeyStoreException, NoSuchAlgorithmException, CertificateException {
-        final File tmpFile = CertUtils.exportDcmStore(_logger, _isYesMode, _dcmStore, _dcmStorePw, null);
+        final File tmpFile = CertUtils.exportDcmStore(_logger, _isYesMode, _dcmStore, _dcmStorePw, null, null);
         final KeyStoreLoader loader = new KeyStoreLoader(_logger, Arrays.asList(tmpFile.getAbsolutePath()), TempFileManager.TEMP_KEYSTORE_PWD, null, false);
         return new KeyStoreInterrogator(loader.getKeyStore());
     }

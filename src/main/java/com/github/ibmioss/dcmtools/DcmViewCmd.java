@@ -1,12 +1,9 @@
 package com.github.ibmioss.dcmtools;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.util.Collections;
 
 import com.github.ibmioss.dcmtools.utils.CertUtils;
-import com.github.ibmioss.dcmtools.utils.FileUtils;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.StringUtils;
@@ -44,17 +41,10 @@ public class DcmViewCmd {
         }
         final AppLogger logger = AppLogger.getSingleton(opts.isVerbose());
         try {
-            final File tmpFile = TempFileManager.createTempFile();
-            FileUtils.delete(tmpFile);
-            CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), tmpFile.getAbsolutePath());
-            KeyStore fileKs = null;
-            try (FileInputStream fis = new FileInputStream(tmpFile)) {
-                fileKs = KeyStore.getInstance("pkcs12");
-                fileKs.load(fis, TempFileManager.TEMP_KEYSTORE_PWD.toCharArray());
-            }
-            for (final String label : Collections.list(fileKs.aliases())) {
+            KeyStore ks = CertUtils.exportDcmStoreToKeystoreObj(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
+            for (final String label : Collections.list(ks.aliases())) {
                 logger.println("label '" + label + "'");
-                logger.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(fileKs.getCertificate(label), "    "), TerminalColor.CYAN));
+                logger.println(StringUtils.colorizeForTerminal(CertUtils.getCertInfoStr(ks.getCertificate(label), "    "), TerminalColor.CYAN));
             }
         } catch (final Exception e) {
             logger.printExceptionStack_verbose(e);

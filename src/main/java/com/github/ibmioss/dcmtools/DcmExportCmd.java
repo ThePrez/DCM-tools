@@ -1,8 +1,18 @@
 package com.github.ibmioss.dcmtools;
 
-import com.github.ibmioss.dcmtools.CertFileExporter.ExportOptions;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+
+import javax.security.auth.x500.X500Principal;
+
+import com.github.ibmioss.dcmtools.utils.CertUtils;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
+import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
 import com.github.theprez.jcmdutils.StringUtils;
 import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 
@@ -56,7 +66,25 @@ public class DcmExportCmd {
             printUsageAndExit();
         }
         try {
-            new CertFileExporter(file).doExport(logger, opts);
+            if("pkcs12".equalsIgnoreCase(opts.getOutputFileFormat())) {
+                CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), file, opts.getPasswordOrThrow());
+                return;
+            }
+            final KeyStore sourceKs = CertUtils.exportDcmStoreToKeystoreObj(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
+            final KeyStore destKs = KeyStore.getInstance(opts.outputFileFormat);
+            destKs.load(null, null);
+            for (final String alias : Collections.list(sourceKs.aliases())) {
+                final Certificate cert = sourceKs.getCertificate(alias);
+                if (cert instanceof X509Certificate) {
+                    logger.println("    " + alias + ": " + StringUtils.colorizeForTerminal(((X509Certificate) cert).getIssuerX500Principal().getName(X500Principal.RFC1779), TerminalColor.CYAN));
+                } else {
+                    logger.println_err("    " + alias + ": " + StringUtils.colorizeForTerminal("<unknown CN>", TerminalColor.BRIGHT_RED));
+                }
+                destKs.setCertificateEntry(alias, cert);
+            }
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                destKs.store(out, opts.getPasswordOrThrow());
+            }
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
             logger.printExceptionStack_verbose(e);
@@ -87,5 +115,54 @@ public class DcmExportCmd {
 		// @formatter:on
         System.err.println(usage);
         System.exit(-1);
+    }
+
+    public static class ExportOptions extends DcmUserOpts {
+        public boolean isPasswordProtected = false;
+        public String outputFileFormat = "pkcs12";
+        public char[] password = null;
+
+        public String getOutputFileFormat() {
+            return outputFileFormat;
+        }
+
+        public char[] getPasswordOrNull() throws IOException {
+            if (!isPasswordProtected) {
+                return null;
+            }
+            if (StringUtils.isEmpty(password) && !isYesMode()) {
+                final String resp = ConsoleQuestionAsker.get().askUserForPwd("Enter output file password: ");
+                return password = resp.toCharArray();
+            } else {
+                return password;
+            }
+        }
+
+        public char[] getPasswordOrThrow() throws IOException {
+            if (null != password) {
+                return password;
+            }
+            if (StringUtils.isEmpty(password) && !isYesMode()) {
+                final String resp = ConsoleQuestionAsker.get().askUserForPwd("Enter output file password: ");
+                return password = resp.toCharArray();
+            }
+            throw new IOException("ERROR: Password is required");
+        }
+
+        public boolean isPasswordProtected() {
+            return isPasswordProtected;
+        }
+
+        public void setOutputFileFormat(final String outputFileFormat) {
+            this.outputFileFormat = outputFileFormat;
+        }
+
+        public void setPassword(final String password) {
+            this.password = password.toCharArray();
+        }
+
+        public void setPasswordProtected(final boolean isPasswordProtected) {
+            this.isPasswordProtected = isPasswordProtected;
+        }
     }
 }

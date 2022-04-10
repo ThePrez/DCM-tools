@@ -1,19 +1,16 @@
 package com.github.ibmioss.dcmtools;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
 import com.github.ibmioss.dcmtools.utils.CertUtils;
-import com.github.ibmioss.dcmtools.utils.KeyStoreLoader;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
@@ -113,10 +110,8 @@ public class DcmExportCertCmd {
             printUsageAndExit();
         }
         try {
-            final File dcmStore = CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), null);
-            final KeyStoreLoader loader = new KeyStoreLoader(null, Arrays.asList(dcmStore.getAbsolutePath()), TempFileManager.TEMP_KEYSTORE_PWD, opts.getLabel(), false);
-            final KeyStore keyStore = loader.getKeyStore();
-            final Certificate cert = keyStore.getCertificate(opts.getLabel());
+            KeyStore ks = CertUtils.exportDcmStoreToKeystoreObj(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
+            final Certificate cert = ks.getCertificate(opts.getLabel());
 
             if (ExportCertOptions.OutputFormat.PEM == opts.getFormat()) {
                 try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {

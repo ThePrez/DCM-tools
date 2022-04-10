@@ -1,8 +1,8 @@
 
 
 
-target/dcmtools.jar: FORCE /QOpenSys/pkgs/bin/mvn /QOpenSys/pkgs/bin/trust /QOpenSys/pkgs/lib/jvm/openjdk-11/bin/java
-	JAVA_HOME=/QOpenSys/pkgs/lib/jvm/openjdk-11 /QOpenSys/pkgs/bin/mvn package
+target/dcmtools.jar: FORCE /QOpenSys/pkgs/bin/mvn /QOpenSys/pkgs/bin/trust /QOpenSys/pkgs/bin/install
+	JAVA_HOME=/QOpenSys/QIBM/ProdData/JavaVM/jdk80/64bit /QOpenSys/pkgs/bin/mvn package
 	cp target/*-with-dependencies.jar target/dcmtools.jar
 
 FORCE:
@@ -18,11 +18,11 @@ clean:
 /QOpenSys/pkgs/bin/mvn:
 	/QOpenSys/pkgs/bin/yum install maven
 
-/QOpenSys/pkgs/lib/jvm/openjdk-11/bin/java:
-	/QOpenSys/pkgs/bin/yum install openjdk-11
-
 /QOpenSys/pkgs/bin/trust:
 	/QOpenSys/pkgs/bin/yum install /QOpenSys/pkgs/bin/trust
+
+/QOpenSys/pkgs/bin/install:
+	/QOpenSys/pkgs/bin/yum install /QOpenSys/pkgs/bin/install
 
 install: scripts/dcmimport scripts/dcmexport target/dcmtools.jar 
 	install -m 755 -o qsys -D -d ${INSTALL_ROOT}/QOpenSys/pkgs/bin ${INSTALL_ROOT}/QOpenSys/pkgs/lib/dcmtools

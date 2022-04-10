@@ -133,7 +133,6 @@ public class CertFileImporter {
 
         // Convert the KeyStore object to a file in the format needed by the DCM API
         final String dcmImportFile = new KeyStoreLoader(keyStore).saveToDcmApiFormatFile(TempFileManager.TEMP_KEYSTORE_PWD);
-        ;
 
         // .... and... call the DCM API to do the import!
         try (DcmApiCaller caller = new DcmApiCaller(isYesMode)) {
