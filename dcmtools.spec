@@ -1,6 +1,6 @@
 %undefine _disable_source_fetch
 Name: dcmtools
-Version: 0.1.1
+Version: 0.2.0
 Release: 0
 License: Apache-2.0
 Summary: Utilities for working with Digital Certificate Manager (DCM) for IBM i.
@@ -36,6 +36,9 @@ INSTALL_ROOT=%{buildroot} gmake -e install
 %{_libdir}/%{name}
 
 %changelog
+* Mon Nov 15 2021 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.2.0
+- rework several commands to use IBM i JSSE provider
+
 * Mon Nov 15 2021 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.1.1
 - bugfix: fix argument parsing when args contain spaces
 
