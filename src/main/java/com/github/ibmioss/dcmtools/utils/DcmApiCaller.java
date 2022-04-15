@@ -61,6 +61,7 @@ public class DcmApiCaller implements Closeable {
         // 6 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[5] = ec;
+        ec.setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdAddCACertTrust");
@@ -88,6 +89,7 @@ public class DcmApiCaller implements Closeable {
         // 7 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[6] = ec;
+        ec.setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdRemoveCertUsage");
@@ -114,6 +116,7 @@ public class DcmApiCaller implements Closeable {
 
         // 1 Certificate request data Input Char(*)
         parameterList[0] = new ProgramParameter(arg0.toBytes(new Object[] { 8, _file.length(), _file }));
+        parameterList[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
         // 2 Length of certificate request data Input Binary(4)
         parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(arg0.getByteLength()));
         // 3 Format name Input Char(8)
@@ -121,6 +124,7 @@ public class DcmApiCaller implements Closeable {
         // 4 Error Code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[3] = ec;
+        ec.setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         program.setProgram(programName, parameterList);
         // Run the program.
@@ -154,6 +158,7 @@ public class DcmApiCaller implements Closeable {
         // 8 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[7] = ec;
+        ec.setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdUpdateCertUsage");
@@ -195,6 +200,7 @@ public class DcmApiCaller implements Closeable {
         // 14 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[13] = ec;
+        ec.setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         program.setProgram(programName, parameterList);
         // Run the program.
@@ -238,6 +244,7 @@ public class DcmApiCaller implements Closeable {
         // 14 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[13] = ec;
+        ec.setParameterType(ProgramParameter.PASS_BY_REFERENCE);
 
         program.setProgram(programName, parameterList);
         // Run the program.
