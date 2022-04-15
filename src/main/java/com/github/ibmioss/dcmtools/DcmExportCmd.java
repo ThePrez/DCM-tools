@@ -89,7 +89,6 @@ public class DcmExportCmd {
         } catch (final Exception e) {
             logger.printExceptionStack_verbose(e);
             logger.println_err(e.getLocalizedMessage());
-            e.printStackTrace();
             TempFileManager.cleanup();
             System.exit(-1); // TODO: allow skip on nonfatal
         } finally {
