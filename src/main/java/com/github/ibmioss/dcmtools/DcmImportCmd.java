@@ -26,7 +26,7 @@ import com.github.theprez.jcmdutils.StringUtils.TerminalColor;
 public class DcmImportCmd {
 
     private static String fetchCerts(final AppLogger _logger, final boolean _isYesMode, final String _fetchFrom) throws IOException {
-        final ProcessResult cmdResults = ProcessLauncher.exec("openssl s_client -connect " + _fetchFrom + " -showcerts");
+        final ProcessResult cmdResults = ProcessLauncher.exec("/QOpenSys/usr/bin/openssl s_client -connect " + _fetchFrom + " -showcerts");
         if (0 != cmdResults.getExitStatus()) {
             for (final String errLine : cmdResults.getStderr()) {
                 _logger.println_err(errLine);
