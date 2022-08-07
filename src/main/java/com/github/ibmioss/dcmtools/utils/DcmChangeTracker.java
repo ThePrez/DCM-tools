@@ -85,6 +85,19 @@ public class DcmChangeTracker {
         public String getFormattedExplanation(String _linePrefix);
     }
 
+    public static class NoChangesMadeException extends IOException {
+        private String m_resolutionText;
+
+        public NoChangesMadeException(final String _resolutionText) {
+            super("No changes were made to the DCM keystore!");
+            m_resolutionText = _resolutionText;
+        }
+
+        public String getResolutionText() {
+            return m_resolutionText;
+        }
+    }
+
     private final DcmUserOpts m_opts;
 
     private final KeyStoreInterrogator m_startingSnapshot;
@@ -134,10 +147,10 @@ public class DcmChangeTracker {
         return m_startingSnapshot;
     }
 
-    public synchronized void printChanges(final AppLogger _logger) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
+    public synchronized void printChanges(final AppLogger _logger, final String _resolutionText) throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException, PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, ObjectDoesNotExistException {
         final List<DcmChange> changes = getChanges(_logger);
         if (changes.isEmpty()) {
-            throw new IOException("No changes were made to the DCM keystore!");
+            throw new NoChangesMadeException(_resolutionText);
         }
         _logger.println("The following changes were made on the DCM keystore:");
         for (final DcmChange change : changes) {

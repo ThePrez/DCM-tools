@@ -75,7 +75,7 @@ public class DcmRemoveCertCmd {
             try (FileOutputStream fos = new FileOutputStream(opts.getDcmStore())) {
                 ks.store(fos, opts.getDcmPassword().toCharArray());
             }
-            tracker.printChanges(logger);
+            tracker.printChanges(logger, null);
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
             logger.printExceptionStack_verbose(e);

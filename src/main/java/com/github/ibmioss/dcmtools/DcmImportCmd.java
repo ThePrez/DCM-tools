@@ -9,7 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.github.ibmioss.dcmtools.CertFileImporter.ImportOptions;
+import com.github.ibmioss.dcmtools.DcmUserOpts;
 import com.github.ibmioss.dcmtools.utils.DcmChangeTracker;
+import com.github.ibmioss.dcmtools.utils.DcmChangeTracker.NoChangesMadeException;
 import com.github.ibmioss.dcmtools.utils.TempFileManager;
 import com.github.theprez.jcmdutils.AppLogger;
 import com.github.theprez.jcmdutils.ConsoleQuestionAsker;
@@ -133,11 +135,27 @@ public class DcmImportCmd {
             final DcmChangeTracker dcmTracker = new DcmChangeTracker(logger, opts);
             final CertFileImporter off = new CertFileImporter(logger, files);
             off.doImport(logger, opts, dcmTracker);
-            dcmTracker.printChanges(logger);
+            //@formatter:off
+            String noChangesResolution = "This failure may be due to not having imported the necessary root certificate(s). \n" + 
+                    "You can try running the following commands to import the Mozilla certificates bundle,\n" + 
+                    "which may include the needed root certificate:\n" + 
+                    "    /QOpenSys/pkgs/bin/yum install ca-certificates-mozilla\n" + 
+                    "    /QOpenSys/pkgs/bin/dcmimport --installed-certs\n" + 
+                    "Then, try this request again.";
+            //@formatter:on
+            dcmTracker.printChanges(logger, noChangesResolution);
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
             logger.printExceptionStack_verbose(e);
             logger.println_err(e.getLocalizedMessage());
+            if (e instanceof NoChangesMadeException) {
+                String resolutionText = ((NoChangesMadeException) e).getResolutionText();
+                if (StringUtils.isNonEmpty(resolutionText)) {
+                    logger.println("\n");
+                    logger.println(resolutionText);
+                    logger.println("\n");
+                }
+            }
             TempFileManager.cleanup();
             System.exit(-1);
         } finally {
