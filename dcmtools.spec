@@ -1,6 +1,6 @@
 %undefine _disable_source_fetch
 Name: dcmtools
-Version: 0.2.0
+Version: 0.3.0
 Release: 0
 License: Apache-2.0
 Summary: Utilities for working with Digital Certificate Manager (DCM) for IBM i.
@@ -36,6 +36,10 @@ INSTALL_ROOT=%{buildroot} gmake -e install
 %{_libdir}/%{name}
 
 %changelog
+* Sat Aug 06 2022 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.3.0
+- bugfix: fix fetching of certificates with dcmimport --fetch-from
+- feature: better user experience when missing root certs
+
 * Mon Nov 15 2021 Jesse Gorzinski <jgorzins@us.ibm.com> - 0.2.0
 - rework several commands to use IBM i JSSE provider
 
