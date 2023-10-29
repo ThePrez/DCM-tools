@@ -21,7 +21,6 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ProgramParameter;
 import com.ibm.as400.access.ServiceProgramCall;
-import com.ibm.as400.access.Trace;
 
 public class DcmApiCaller implements Closeable {
 
