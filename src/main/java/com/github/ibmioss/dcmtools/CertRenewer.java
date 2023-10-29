@@ -38,7 +38,7 @@ public class CertRenewer {
 
         final boolean isYesMode = _opts.isYesMode();
         // Initialize keystore from file of unknown type
-        final KeyStore keyStore = new KeyStoreLoader(null, m_fileNames, null, null, false).getKeyStore();
+        final KeyStore keyStore = new KeyStoreLoader(_logger, m_fileNames, null, null, false).getKeyStore();
 
         for (final String alias : Collections.list(keyStore.aliases())) {
             renewCert(_logger, keyStore.getCertificate(alias),_opts);
