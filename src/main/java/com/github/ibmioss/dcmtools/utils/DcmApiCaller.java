@@ -97,7 +97,7 @@ public class DcmApiCaller implements Closeable {
     }
 
     public void callQycdRenewCertificate_RNWC0300(final AppLogger _logger, final String _file) throws PropertyVetoException, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException {
-        final ProgramCall program = new ServiceProgramCall(m_conn);
+        final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         // Initialize the name of the program to run.
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDRNWC.SRVPGM";
         final String apiFormat = "RNWC0300";
@@ -125,10 +125,6 @@ public class DcmApiCaller implements Closeable {
 
         program.setProgram(programName, parameterList);
         program.setProcedureName("QycdRenewCertificate");
-
-        // TODO: temp trace data
-        Trace.setTraceOn(true);
-        Trace.setTraceAllOn(true);
 
         // Run the program.
         runProgram(_logger, program, ec);
