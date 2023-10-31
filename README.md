@@ -80,6 +80,8 @@ The ability to "Renew" a certificate (with the `dcmrenew` tool) requires IBM i 7
 yum install https://github.com/ThePrez/DCM-tools/releases/download/v0.3.0/dcmtools-0.3.0-0.ibmi7.2.ppc64.rpm
 ```
 Or, to build from source, clone this repository and run `make install`
+Note: yum install might fail when the IBM i job is not set to US English language settings. It is recommended to change the job
+settings CHGJOB LANGID(ENU) CNTRYID(US) CCSID(37) prior to starting the install process.
 
 # Basic usage
 
