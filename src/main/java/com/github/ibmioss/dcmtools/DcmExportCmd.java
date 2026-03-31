@@ -67,7 +67,7 @@ public class DcmExportCmd {
         }
         try {
             if("pkcs12".equalsIgnoreCase(opts.getOutputFileFormat())) {
-                CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), file, opts.getPasswordOrThrow());
+                CertUtils.exportDcmStore(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword(), file, opts.getPasswordOrNull());
                 return;
             }
             final KeyStore sourceKs = CertUtils.exportDcmStoreToKeystoreObj(logger, opts.isYesMode(), opts.getDcmStore(), opts.getDcmPassword());
@@ -83,7 +83,7 @@ public class DcmExportCmd {
                 destKs.setCertificateEntry(alias, cert);
             }
             try (FileOutputStream out = new FileOutputStream(file)) {
-                destKs.store(out, opts.getPasswordOrThrow());
+                destKs.store(out, opts.getPasswordOrNull());
             }
             logger.println_success("SUCCESS!!!");
         } catch (final Exception e) {
