@@ -251,16 +251,16 @@ public class DcmApiCaller implements Closeable {
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
         final int bufferSize = 1024;
         final ProgramParameter[] parameterList = new ProgramParameter[6];
-        // 1 Receiver variable Output Char(*)
-        parameterList[0] = new ProgramParameter(bufferSize);
-        // 2 Length of receiver variable Input Binary(4)
-        parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(bufferSize));
-        // 3 Format name Input Char(8)
-        parameterList[2] = new ProgramParameter(new AS400Text(8).toBytes("CUSG0100"));
-        // 4 Application ID Input Char(*)
-        parameterList[3] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
-        // 5 Length of application ID Input Binary(4)
-        parameterList[4] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
+        // 1 Application ID Input Char(*)
+        parameterList[0] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
+        // 2 Length of application ID Input Binary(4)
+        parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
+        // 3 Receiver variable Output Char(*)
+        parameterList[2] = new ProgramParameter(bufferSize);
+        // 4 Length of receiver variable Input Binary(4)
+        parameterList[3] = new ProgramParameter(new AS400Bin4().toBytes(bufferSize));
+        // 5 Format name Input Char(8)
+        parameterList[4] = new ProgramParameter(new AS400Text(8).toBytes("CUSG0100"));
         // 6 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[5] = ec;
@@ -269,7 +269,7 @@ public class DcmApiCaller implements Closeable {
         runProgram(_logger, program, ec);
 
         // Parse CUSG0100 output
-        final byte[] data = parameterList[0].getOutputData();
+        final byte[] data = parameterList[2].getOutputData();
         final AS400Bin4 bin4 = new AS400Bin4();
         final int appIdLen    = (Integer) bin4.toObject(data, 8);
         final int appIdOffset = (Integer) bin4.toObject(data, 12);
