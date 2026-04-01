@@ -249,18 +249,33 @@ public class DcmApiCaller implements Closeable {
             IOException, InterruptedException, ObjectDoesNotExistException {
         final ServiceProgramCall program = new ServiceProgramCall(m_conn);
         final String programName = "/QSYS.LIB/QICSS.LIB/QYCDCUSG.SRVPGM";
-        final int bufferSize = 1024;
+        final int bufferSize = 4096;
+        final AS400Bin4 bin4 = new AS400Bin4();
+
+        // Build Qycd_App_Select_Crit_T + one Qycd_App_Select_T entry for app ID search
+        // Qycd_App_Select_T: Size_Entry(4) + Comp_Operator(4) + App_Control_Key(4) +
+        //                    Length_Comp_Data(4) + Comp_Data(appId bytes)
+        final byte[] appIdBytes = new AS400Text(_appId.length()).toBytes(_appId);
+        final int entrySize = 16 + appIdBytes.length;
+        final byte[] selCrit = new byte[4 + entrySize];
+        bin4.toBytes(1,           selCrit, 0);  // Number_Sel_Criteria = 1
+        bin4.toBytes(entrySize,   selCrit, 4);  // Size_Entry
+        bin4.toBytes(0,           selCrit, 8);  // Comp_Operator = 0 (equals)
+        bin4.toBytes(1,           selCrit, 12); // App_Control_Key = QYCD_RTV_APP_ID_KEY
+        bin4.toBytes(appIdBytes.length, selCrit, 16); // Length_Comp_Data
+        System.arraycopy(appIdBytes, 0, selCrit, 20, appIdBytes.length);
+
         final ProgramParameter[] parameterList = new ProgramParameter[6];
-        // 1 Application ID Input Char(*)
-        parameterList[0] = new ProgramParameter(new AS400Text(_appId.length()).toBytes(_appId));
-        // 2 Length of application ID Input Binary(4)
-        parameterList[1] = new ProgramParameter(new AS400Bin4().toBytes(_appId.length()));
-        // 3 Receiver variable Output Char(*)
-        parameterList[2] = new ProgramParameter(bufferSize);
-        // 4 Length of receiver variable Input Binary(4)
-        parameterList[3] = new ProgramParameter(new AS400Bin4().toBytes(bufferSize));
-        // 5 Format name Input Char(8)
-        parameterList[4] = new ProgramParameter(new AS400Text(8).toBytes("CUSG0100"));
+        // 1 Receiver variable Output Char(*)
+        parameterList[0] = new ProgramParameter(bufferSize);
+        // 2 Length of receiver variable Input Binary(4)
+        parameterList[1] = new ProgramParameter(bin4.toBytes(bufferSize));
+        // 3 Format name Input Char(8)
+        parameterList[2] = new ProgramParameter(new AS400Text(8).toBytes("RCUI0200"));
+        // 4 Selection criteria Input Char(*)
+        parameterList[3] = new ProgramParameter(selCrit);
+        // 5 Length of selection criteria Input Binary(4)
+        parameterList[4] = new ProgramParameter(bin4.toBytes(selCrit.length));
         // 6 Error code I/O Char(*)
         final ErrorCodeParameter ec = new ErrorCodeParameter(true, true);
         parameterList[5] = ec;
@@ -268,22 +283,42 @@ public class DcmApiCaller implements Closeable {
         program.setProcedureName("QycdRetrieveCertUsageInfo");
         runProgram(_logger, program, ec);
 
-        // Parse CUSG0100 output
-        final byte[] data = parameterList[2].getOutputData();
-        final AS400Bin4 bin4 = new AS400Bin4();
-        final int appIdLen    = (Integer) bin4.toObject(data, 8);
-        final int appIdOffset = (Integer) bin4.toObject(data, 12);
-        final int storeLen    = (Integer) bin4.toObject(data, 16);
-        final int storeOffset = (Integer) bin4.toObject(data, 20);
-        final int certIdLen   = (Integer) bin4.toObject(data, 28);
-        final int certIdOffset= (Integer) bin4.toObject(data, 32);
+        // Parse RCUI0200 output
+        // Header: Bytes_Returned(4) Bytes_Available(4) Offset_First_Entry(4) Number_Entries_Returned(4)
+        final byte[] data = parameterList[0].getOutputData();
+        final int numEntries    = (Integer) bin4.toObject(data, 12);
+        if (numEntries == 0) {
+            return new AppCertInfo(_appId, "", "");
+        }
+        final int entryOffset   = (Integer) bin4.toObject(data, 8);
 
-        final String retAppId = appIdLen > 0
-                ? new AS400Text(appIdLen).toObject(data, appIdOffset).toString().trim() : "";
-        final String storeName = storeLen > 0
-                ? new AS400Text(storeLen).toObject(data, storeOffset).toString().trim() : "";
-        final String certId = certIdLen > 0
-                ? new AS400Text(certIdLen).toObject(data, certIdOffset).toString().trim() : "";
+        // RCUI0200_Entry offsets from entry start:
+        // 0:   Displ_Next_Entry(4)
+        // 4:   Application_Info: Application_ID[100] + Exit_Pgm_Name[10] + Exit_Pgm_Lib_Name[10]
+        //      + Threadsafe(1) + System_Value_Used(1) + Multithreaded_Job_Action(1) + Desc_Ind(1)
+        //      + Desc_Msg_File[10] + Desc_Msg_Library[10] + Desc_Msg_ID[7] + Desc_Text[50]
+        //      + Limit_CA_Certs(1) = 202 bytes total
+        // 206: Cert_Assigned(1)
+        // 207: Cert_ID_Type(1)
+        // 208: Cert_ID_Conv_Ind(1)
+        // 209: Cert_Store_Conv_Ind(1)
+        // 210: Number_Certs(2) short
+        // 212: Displ_Cert_ID(4)
+        // 216: Length_Cert_ID(4)
+        // 220: CCSID_Cert_ID(4)
+        // 224: Displ_Cert_Store(4)
+        // 228: Length_Cert_Store(4)
+        // 232: CCSID_Cert_Store(4)
+        final int displCertId    = (Integer) bin4.toObject(data, entryOffset + 212);
+        final int lengthCertId   = (Integer) bin4.toObject(data, entryOffset + 216);
+        final int displCertStore = (Integer) bin4.toObject(data, entryOffset + 224);
+        final int lengthCertStore= (Integer) bin4.toObject(data, entryOffset + 228);
+
+        final String retAppId = new AS400Text(100).toObject(data, entryOffset + 4).toString().trim();
+        final String certId = lengthCertId > 0
+                ? new AS400Text(lengthCertId).toObject(data, entryOffset + displCertId).toString().trim() : "";
+        final String storeName = lengthCertStore > 0
+                ? new AS400Text(lengthCertStore).toObject(data, entryOffset + displCertStore).toString().trim() : "";
 
         return new AppCertInfo(retAppId, storeName, certId);
     }
