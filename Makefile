@@ -10,7 +10,7 @@ FORCE:
 all: target/dcmtools.jar
 
 uninstall: clean
-	rm -r ${INSTALL_ROOT}/QOpenSys/pkgs/lib/dcmtools ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmimport ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmexport
+	rm -r ${INSTALL_ROOT}/QOpenSys/pkgs/lib/dcmtools ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmimport ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmexport ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmcheckexpiry ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmlistapps ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmregister ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmunregister ${INSTALL_ROOT}/QOpenSys/pkgs/bin/dcmcsr
 
 clean:
 	rm -r target
